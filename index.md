@@ -5,6 +5,15 @@ Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 
 ---
 
+## Quick Links
+
+| Resource | Link |
+|---|---|
+| 📋 Complete Syllabus (Unit-wise) | [Open in browser](syllabus.html) |
+| 📚 Recommended Resources | [View](resources.md) |
+
+---
+
 ## Modules Covered
 
 ### Module 00 · Introduction & Azure Fundamentals
@@ -17,7 +26,7 @@ Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 
 ---
 
-### Module 01 · Resource Groups, RBAC & Virtual Machines
+### Module 01 · Resource Groups, RBAC & Entra ID
 | Material | Link |
 |---|---|
 | Theory Notes | [Open in browser](01-resource-groups-vms/theory-notes.html) |
@@ -48,14 +57,18 @@ Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 
 ---
 
-### Coming Up
-Module 05: Virtual Networks · Module 06: Intersite Connectivity · Module 07: Traffic Management  
-Module 08: Monitoring · Module 09: Backup · Module 10: Containers · Module 11: Serverless · Module 12: Data Services
+## Coming Up
 
----
-
-## Useful Links
-- [Recommended videos and practice resources](resources.md)
+| Module | Topic |
+|---|---|
+| Module 05 | Virtual Networks (VNet, Subnets, NSG, Bastion) |
+| Module 06 | Intersite Connectivity (VNet Peering, VPN Gateway, ExpressRoute) |
+| Module 07 | Traffic Management (Load Balancer, App Gateway, Traffic Manager) |
+| Module 08 | Azure Monitor, Alerts & Network Watcher |
+| Module 09 | Data Protection & Azure Backup |
+| Module 10 | App Services, AKS & Containers |
+| Module 11 | Azure AD / Entra ID & Governance |
+| Module 12 | Azure Policy, RBAC & Management Groups |
 
 ---
 
