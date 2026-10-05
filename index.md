@@ -1,37 +1,55 @@
 # Cloud Computing — Azure (AZ-104)
 
-**IIMT University, Meerut** · 3rd Semester
+**IIMT University, Meerut** · 3rd Semester  
 Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 
 ---
 
-## Latest uploads
+## Modules Covered
 
-| Date | Topic | Download |
-|---|---|---|
-| 18 Sep | Networking From Zero | [PDF](sessions/01-networking-from-zero.pdf) |
-
----
-
-## Sessions
-
-| # | Topic | Download |
-|---|---|---|
-| 01 | Networking From Zero — bit to subnetting | [PDF](sessions/01-networking-from-zero.pdf) |
-| 02 | Networking Fundamentals — Azure specifics | [PDF](sessions/02-networking-fundamentals-azure.pdf) |
-| 03 | Cloud Terminology | [PDF](sessions/03-cloud-terminology.pdf) |
-
-## Labs
-
-| # | Lab | Download |
-|---|---|---|
-| 00 | Create your Azure account | [Slides](labs/lab-00-create-your-account.pptx) |
-| 01 | Resource Group and Virtual Machine | [PDF](labs/lab-01-resource-group-and-vm.pdf) · [Slides](slides/lab-01-practical-guide.pptx) |
-
-## Reference
-
-- [Recommended videos and practice](resources.md)
+### Module 00 · Introduction & Azure Fundamentals
+| Material | Link |
+|---|---|
+| Networking from Zero — bit to subnetting | [PDF](00-introduction/networking-from-zero.pdf) |
+| Networking Fundamentals — Azure specifics | [PDF](00-introduction/networking-fundamentals-azure.pdf) |
+| Cloud Terminology | [PDF](00-introduction/cloud-terminology.pdf) |
+| Lab: Create Your Azure Account | [Slides](00-introduction/lab-create-account.pptx) |
 
 ---
 
-*Material added after every class. Bookmark this page — the link never changes.*
+### Module 01 · Resource Groups, RBAC & Virtual Machines
+| Material | Link |
+|---|---|
+| Lab Guide | [Slides](01-resource-groups-vms/lab-guide.pptx) |
+| Lab: Resource Group & VM | [PDF](01-resource-groups-vms/lab-resource-group-vm.pdf) |
+
+---
+
+### Module 02 · ARM Templates *(covered in class — materials coming soon)*
+
+---
+
+### Module 03 · Azure Virtual Machines *(covered in class — materials coming soon)*
+
+---
+
+### Module 04 · Azure Storage
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](04-storage/theory-notes.html) |
+| Lab Presentation | [Open in browser](04-storage/lab.html) |
+
+---
+
+### Coming Up
+Module 05: Virtual Networks · Module 06: Intersite Connectivity · Module 07: Traffic Management  
+Module 08: Monitoring · Module 09: Backup · Module 10: Containers · Module 11: Serverless · Module 12: Data Services
+
+---
+
+## Useful Links
+- [Recommended videos and practice resources](resources.md)
+
+---
+
+*Material is added after every class. Bookmark this page — the link never changes.*
