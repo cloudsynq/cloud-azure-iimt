@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Azure ARM Templates &amp; Bicep — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg:#F4F8FF; --surface:#FFFFFF; --surface-2:#EEF4FF;
+    --text:#0E1E35; --text-muted:#4A6080; --text-light:#8AA0BC;
+    --accent:#0078D4; --accent-light:#DDEEFF; --accent-dark:#005A9E;
+    --azure-dark:#0A2540; --border:#D4E4F7; --border-light:#EAF2FF;
+    --green:#107C10; --green-bg:#DFF6DD; --orange:#C55A11; --orange-bg:#FFF4CE;
+    --red:#A4262C; --red-bg:#FDE7E9; --purple:#5C2D91; --purple-bg:#EDE7F6;
+    --shadow:0 2px 8px rgba(0,120,212,.08),0 1px 2px rgba(0,0,0,.04);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#07111F; --surface:#0D1F35; --surface-2:#132840;
+      --text:#D8E8F8; --text-muted:#7A9BBE; --text-light:#4A6A8E;
+      --accent:#4BA3E8; --accent-light:#0A2040; --accent-dark:#79BFF5;
+      --azure-dark:#061428; --border:#1A3050; --border-light:#0F2030;
+      --green:#6CCB5F; --green-bg:#0A2510; --orange:#F7A850; --orange-bg:#251500;
+      --red:#F1707A; --red-bg:#250A0C; --purple:#C2A7F0; --purple-bg:#1A0A35;
+      --shadow:0 2px 8px rgba(0,0,0,.4); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#07111F; --surface:#0D1F35; --surface-2:#132840;
+    --text:#D8E8F8; --text-muted:#7A9BBE; --text-light:#4A6A8E;
+    --accent:#4BA3E8; --accent-light:#0A2040; --accent-dark:#79BFF5;
+    --azure-dark:#061428; --border:#1A3050; --border-light:#0F2030;
+    --green:#6CCB5F; --green-bg:#0A2510; --orange:#F7A850; --orange-bg:#251500;
+    --red:#F1707A; --red-bg:#250A0C; --purple:#C2A7F0; --purple-bg:#1A0A35;
+    --shadow:0 2px 8px rgba(0,0,0,.4); color-scheme:dark;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; }
+  body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.75; padding-inline:16px; }
+  .wrap { max-width:900px; margin:0 auto; padding-block:36px 80px; }
+  .header { background:linear-gradient(135deg,var(--azure-dark) 0%,#003F7F 100%); border-radius:16px; padding:40px; margin-bottom:32px; position:relative; overflow:hidden; }
+  .header::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(0,120,212,.35) 0%,transparent 70%); }
+  .header-eye { font-family:'Outfit',sans-serif; font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#60B8FF; margin-bottom:10px; }
+  .header h1 { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800; color:#FFF; line-height:1.2; text-wrap:balance; margin-bottom:16px; }
+  .header h1 em { color:#60B8FF; font-style:normal; }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill { background:rgba(255,255,255,.12); color:rgba(255,255,255,.85); border-radius:100px; padding:4px 14px; font-size:12px; font-weight:500; }
+  .pill b { color:#60B8FF; }
+  .toc { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 28px; margin-bottom:28px; box-shadow:var(--shadow); }
+  .toc-head { font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
+  .toc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px; }
+  .toc-grid a { display:flex; align-items:center; gap:8px; color:var(--text); text-decoration:none; font-size:13.5px; padding:6px 10px; border-radius:7px; transition:background .15s; }
+  .toc-grid a:hover { background:var(--accent-light); color:var(--accent); }
+  .toc-num { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600; color:var(--accent); background:var(--accent-light); border-radius:5px; padding:2px 7px; flex-shrink:0; }
+  .sec { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:32px 36px; margin-bottom:22px; box-shadow:var(--shadow); scroll-margin-top:16px; }
+  .sec-eye { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+  .sec h2 { font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:700; color:var(--text); margin-bottom:20px; padding-bottom:14px; border-bottom:2px solid var(--border-light); text-wrap:balance; }
+  .sec h3 { font-family:'Outfit',sans-serif; font-size:1.05rem; font-weight:600; color:var(--text); margin:24px 0 10px; }
+  .sec h3::before { content:'▸ '; color:var(--accent); }
+  .sec p { color:var(--text); margin-bottom:12px; }
+  .sec ul, .sec ol { padding-left:20px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+  .sec li { color:var(--text); }
+  .sec li::marker { color:var(--accent); }
+  .analogy { background:var(--orange-bg); border-left:4px solid var(--orange); border-radius:0 10px 10px 0; padding:16px 20px; margin:18px 0; font-size:14px; }
+  .analogy-head { font-family:'Outfit',sans-serif; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+  .callout { border-radius:10px; padding:16px 20px; margin:18px 0; border-left:4px solid; font-size:14px; }
+  .callout-head { font-family:'Outfit',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:6px; }
+  .callout.info  { background:var(--accent-light); border-color:var(--accent); }
+  .callout.info .callout-head { color:var(--accent-dark); }
+  .callout.tip   { background:var(--green-bg); border-color:var(--green); }
+  .callout.tip .callout-head { color:var(--green); }
+  .callout.warn  { background:var(--orange-bg); border-color:var(--orange); }
+  .callout.warn .callout-head { color:var(--orange); }
+  .tbl-wrap { overflow-x:auto; margin:18px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { background:var(--azure-dark); color:#FFF; font-family:'Outfit',sans-serif; font-weight:600; font-size:12px; text-align:left; padding:11px 16px; }
+  th:first-child { border-radius:8px 0 0 0; } th:last-child { border-radius:0 8px 0 0; }
+  td { padding:10px 16px; border-bottom:1px solid var(--border-light); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:var(--surface-2); }
+  .code-block { background:var(--azure-dark); color:#D4E8FF; border-radius:10px; padding:20px 22px; margin:18px 0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7; overflow-x:auto; }
+  .code-block .kw { color:#79C0FF; } .code-block .str { color:#A5D6FF; }
+  .code-block .val { color:#9ECBFF; } .code-block .cmt { color:#8B949E; font-style:italic; }
+  .code-block .key { color:#F0E68C; }
+  .section-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px; margin:18px 0; }
+  .sc { border-radius:10px; padding:14px 16px; border:1.5px solid var(--border); background:var(--surface-2); }
+  .sc .sc-tag { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--accent); margin-bottom:4px; }
+  .sc h4 { font-family:'Outfit',sans-serif; font-size:.85rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+  .sc p { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .deploy-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:18px 0; }
+  .deploy-card { border-radius:12px; padding:18px 16px; border:1.5px solid var(--border); background:var(--surface-2); }
+  .deploy-card h4 { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .deploy-card p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .deploy-card code { font-family:'JetBrains Mono',monospace; font-size:11.5px; background:var(--accent-light); color:var(--accent); padding:2px 6px; border-radius:4px; }
+  .bicep-vs { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0; }
+  @media (max-width:500px) { .bicep-vs { grid-template-columns:1fr; } }
+  .bv { border-radius:12px; padding:18px; overflow-x:auto; }
+  .bv.arm { background:var(--surface-2); border:1.5px solid var(--border); }
+  .bv.bicep { background:var(--accent-light); border:1.5px solid var(--accent); }
+  .bv-label { font-family:'Outfit',sans-serif; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:10px; }
+  .bv.arm .bv-label { color:var(--text-muted); }
+  .bv.bicep .bv-label { color:var(--accent-dark); }
+  .bv pre { font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.6; color:var(--text); white-space:pre-wrap; }
+  .sum-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .sum-item { background:var(--azure-dark); color:#FFF; border-radius:12px; padding:18px 20px; }
+  .sum-item .si-label { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#60B8FF; margin-bottom:6px; }
+  .sum-item p { font-size:13px; color:rgba(255,255,255,.8); margin:0; line-height:1.5; }
+  .docs-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .docs-table th { background:var(--azure-dark); color:#60B8FF; font-family:'Outfit',sans-serif; font-size:11.5px; padding:10px 14px; text-align:left; }
+  .docs-table th:first-child { border-radius:8px 0 0 0; } .docs-table th:last-child { border-radius:0 8px 0 0; }
+  .docs-table td { padding:9px 14px; border-bottom:1px solid var(--border-light); }
+  .docs-table a { color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:12px; text-decoration:none; }
+  .docs-table a:hover { text-decoration:underline; }
+  .footer { margin-top:48px; padding:20px 0; border-top:1px solid var(--border); text-align:center; font-size:13px; color:var(--text-muted); }
+  @media (max-width:620px) { .header{padding:28px 20px;} .header h1{font-size:1.5rem;} .sec{padding:22px 18px;} .toc-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-eye">Module 02 · AZ-104 · IIMT University, Meerut</div>
+    <h1>Azure <em>ARM Templates</em> &amp; Bicep</h1>
+    <div class="pills">
+      <span class="pill">3rd Semester</span>
+      <span class="pill"><b>Infrastructure as Code</b></span>
+      <span class="pill">ARM / Bicep</span>
+      <span class="pill">Automation</span>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-head">Table of Contents</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span> What is ARM?</a>
+      <a href="#s2"><span class="toc-num">02</span> ARM Template Structure</a>
+      <a href="#s3"><span class="toc-num">03</span> Parameters &amp; Variables</a>
+      <a href="#s4"><span class="toc-num">04</span> Resources Section</a>
+      <a href="#s5"><span class="toc-num">05</span> Template Functions</a>
+      <a href="#s6"><span class="toc-num">06</span> Deployment Methods</a>
+      <a href="#s7"><span class="toc-num">07</span> Bicep — Modern IaC</a>
+      <a href="#s8"><span class="toc-num">08</span> Summary</a>
+      <a href="#s9"><span class="toc-num">09</span> Official Docs</a>
+    </div>
+  </div>
+
+  <!-- S1 -->
+  <div class="sec" id="s1">
+    <div class="sec-eye">Section 01</div>
+    <h2>What is Azure Resource Manager (ARM)?</h2>
+    <p><strong>Azure Resource Manager</strong> is the deployment and management service for Azure. Every action you take in the portal, CLI, or PowerShell goes through ARM. ARM Templates let you <em>describe</em> your infrastructure in a JSON file — and Azure will create or update it to match.</p>
+    <h3>Why use ARM Templates?</h3>
+    <ul>
+      <li><strong>Repeatability</strong> — deploy the same environment 100 times, same result every time</li>
+      <li><strong>Version control</strong> — store templates in Git, track changes over time</li>
+      <li><strong>No manual errors</strong> — no clicking through portal steps that you might forget</li>
+      <li><strong>Idempotent</strong> — running the same template twice doesn't break things; it checks existing state</li>
+    </ul>
+    <div class="analogy">
+      <div class="analogy-head">Analogy</div>
+      An ARM Template is like a <strong>blueprint for a building</strong>. The blueprint describes every room, wall, and pipe. You give it to a contractor (ARM), and they build exactly what's described — whether it's your first or tenth building.
+    </div>
+    <h3>ARM Template vs. Manual Portal</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>ARM Template</th><th>Manual Portal</th></tr></thead>
+        <tbody>
+          <tr><td>Repeatability</td><td>Fully repeatable</td><td>Manual steps, prone to error</td></tr>
+          <tr><td>Speed</td><td>Fast (parallel deployment)</td><td>Slow (one resource at a time)</td></tr>
+          <tr><td>Documentation</td><td>Template IS the documentation</td><td>Must document separately</td></tr>
+          <tr><td>Learning curve</td><td>Higher (JSON syntax)</td><td>Lower (GUI)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="sec" id="s2">
+    <div class="sec-eye">Section 02</div>
+    <h2>ARM Template Structure</h2>
+    <p>An ARM template is a JSON file with a specific structure. It must have a <code>$schema</code> and a <code>resources</code> section at minimum.</p>
+    <div class="section-cards">
+      <div class="sc"><div class="sc-tag">$schema</div><h4>Schema</h4><p>Tells Azure which schema/version of the template language to use. Always required.</p></div>
+      <div class="sc"><div class="sc-tag">contentVersion</div><h4>Version</h4><p>Your own version string, e.g., "1.0.0.0". Not used by Azure, just for your tracking.</p></div>
+      <div class="sc"><div class="sc-tag">parameters</div><h4>Parameters</h4><p>Values you provide at deploy time — e.g., VM name, location. Makes templates reusable.</p></div>
+      <div class="sc"><div class="sc-tag">variables</div><h4>Variables</h4><p>Computed values used inside the template. Avoids repeating the same expression.</p></div>
+      <div class="sc"><div class="sc-tag">resources</div><h4>Resources</h4><p>The main section — what you're actually deploying (VMs, storage accounts, VNets, etc.).</p></div>
+      <div class="sc"><div class="sc-tag">outputs</div><h4>Outputs</h4><p>Values returned after deployment, e.g., the public IP or connection string.</p></div>
+    </div>
+    <h3>Minimal ARM Template</h3>
+    <div class="code-block">
+<span class="cmt">// Minimal ARM template — creates one Storage Account</span>
+{
+  <span class="key">"$schema"</span>: <span class="str">"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"</span>,
+  <span class="key">"contentVersion"</span>: <span class="str">"1.0.0.0"</span>,
+  <span class="key">"parameters"</span>: {
+    <span class="key">"storageAccountName"</span>: {
+      <span class="key">"type"</span>: <span class="str">"string"</span>,
+      <span class="key">"metadata"</span>: { <span class="key">"description"</span>: <span class="str">"Name of the storage account"</span> }
+    }
+  },
+  <span class="key">"resources"</span>: [
+    {
+      <span class="key">"type"</span>: <span class="str">"Microsoft.Storage/storageAccounts"</span>,
+      <span class="key">"apiVersion"</span>: <span class="str">"2023-01-01"</span>,
+      <span class="key">"name"</span>: <span class="str">"[parameters('storageAccountName')]"</span>,
+      <span class="key">"location"</span>: <span class="str">"[resourceGroup().location]"</span>,
+      <span class="key">"sku"</span>: { <span class="key">"name"</span>: <span class="str">"Standard_LRS"</span> },
+      <span class="key">"kind"</span>: <span class="str">"StorageV2"</span>
+    }
+  ]
+}
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="sec" id="s3">
+    <div class="sec-eye">Section 03</div>
+    <h2>Parameters &amp; Variables</h2>
+    <h3>Parameters — input values at deploy time</h3>
+    <p>Parameters let you pass different values each time you deploy. For example, use the same template for Dev and Prod by passing different VM sizes.</p>
+    <div class="code-block">
+<span class="key">"parameters"</span>: {
+  <span class="key">"vmSize"</span>: {
+    <span class="key">"type"</span>: <span class="str">"string"</span>,
+    <span class="key">"defaultValue"</span>: <span class="str">"Standard_B2s"</span>,
+    <span class="key">"allowedValues"</span>: [<span class="str">"Standard_B1s"</span>, <span class="str">"Standard_B2s"</span>, <span class="str">"Standard_D2s_v3"</span>],
+    <span class="key">"metadata"</span>: { <span class="key">"description"</span>: <span class="str">"Size of the virtual machine"</span> }
+  },
+  <span class="key">"environment"</span>: {
+    <span class="key">"type"</span>: <span class="str">"string"</span>,
+    <span class="key">"allowedValues"</span>: [<span class="str">"dev"</span>, <span class="str">"staging"</span>, <span class="str">"prod"</span>]
+  }
+}
+    </div>
+    <h3>Variables — reusable computed values</h3>
+    <p>Variables let you compute values once and reference them many times. Keeps templates clean.</p>
+    <div class="code-block">
+<span class="key">"variables"</span>: {
+  <span class="key">"storageAccountName"</span>: <span class="str">"[concat('st', parameters('environment'), uniqueString(resourceGroup().id))]"</span>,
+  <span class="key">"location"</span>: <span class="str">"[resourceGroup().location]"</span>
+}
+    </div>
+    <div class="callout info">
+      <div class="callout-head">Parameters vs. Variables</div>
+      <strong>Parameters</strong> come from outside (you provide them at deploy time). <strong>Variables</strong> are calculated inside the template. Use parameters for things that change between environments; variables for things computed from parameters.
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="sec" id="s4">
+    <div class="sec-eye">Section 04</div>
+    <h2>Resources Section</h2>
+    <p>The <code>resources</code> array is the core of the template — it lists every Azure resource to create or update.</p>
+    <h3>Resource Block Structure</h3>
+    <div class="code-block">
+{
+  <span class="key">"type"</span>: <span class="str">"Microsoft.Compute/virtualMachines"</span>,    <span class="cmt">// resource provider/type</span>
+  <span class="key">"apiVersion"</span>: <span class="str">"2023-09-01"</span>,                         <span class="cmt">// API version of the resource</span>
+  <span class="key">"name"</span>: <span class="str">"[parameters('vmName')]"</span>,                 <span class="cmt">// resource name</span>
+  <span class="key">"location"</span>: <span class="str">"[resourceGroup().location]"</span>,          <span class="cmt">// where to deploy</span>
+  <span class="key">"dependsOn"</span>: [                                    <span class="cmt">// deploy AFTER these</span>
+    <span class="str">"[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"</span>
+  ],
+  <span class="key">"properties"</span>: { <span class="cmt">// resource-specific config</span>
+    ...
+  }
+}
+    </div>
+    <h3>dependsOn</h3>
+    <p>Azure tries to deploy all resources in parallel by default. Use <code>dependsOn</code> to tell ARM "this resource needs another one to exist first." For example, a VM depends on its NIC, which depends on the VNet.</p>
+    <div class="callout warn">
+      <div class="callout-head">API Version</div>
+      Each resource type has its own API version. Always check the latest at <a href="https://learn.microsoft.com/en-us/azure/templates/" target="_blank">learn.microsoft.com/azure/templates</a>. Using an old API version means you might miss new features.
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="sec" id="s5">
+    <div class="sec-eye">Section 05</div>
+    <h2>Template Functions</h2>
+    <p>ARM templates have built-in functions you can use in expressions (inside square brackets <code>[ ]</code>).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Function</th><th>What it does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>parameters('name')</code></td><td>Gets a parameter value</td><td><code>[parameters('vmName')]</code></td></tr>
+          <tr><td><code>variables('name')</code></td><td>Gets a variable value</td><td><code>[variables('location')]</code></td></tr>
+          <tr><td><code>resourceGroup().location</code></td><td>Current RG's region</td><td><code>[resourceGroup().location]</code></td></tr>
+          <tr><td><code>concat(a, b)</code></td><td>Joins strings together</td><td><code>[concat('vm-', parameters('env'))]</code></td></tr>
+          <tr><td><code>uniqueString(seed)</code></td><td>Unique 13-char string from a seed</td><td><code>[uniqueString(resourceGroup().id)]</code></td></tr>
+          <tr><td><code>toLower(str)</code></td><td>Lowercase a string</td><td><code>[toLower(parameters('name'))]</code></td></tr>
+          <tr><td><code>resourceId('type','name')</code></td><td>Gets resource's full ID</td><td>Used in dependsOn</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="sec" id="s6">
+    <div class="sec-eye">Section 06</div>
+    <h2>Deployment Methods</h2>
+    <p>You can deploy an ARM template in four ways:</p>
+    <div class="deploy-grid">
+      <div class="deploy-card">
+        <h4>Azure Portal</h4>
+        <p>Deploy &gt; Template Deployment &gt; upload JSON. Good for learning and quick one-offs.</p>
+      </div>
+      <div class="deploy-card">
+        <h4>Azure CLI</h4>
+        <p><code>az deployment group create</code></p>
+        <p>Best for scripts and CI/CD pipelines on Linux/Mac.</p>
+      </div>
+      <div class="deploy-card">
+        <h4>PowerShell</h4>
+        <p><code>New-AzResourceGroupDeployment</code></p>
+        <p>Windows-friendly. Good for automated scripts.</p>
+      </div>
+      <div class="deploy-card">
+        <h4>GitHub Actions / DevOps</h4>
+        <p>Use <code>azure/arm-deploy</code> action. Ideal for automated deployments on every push.</p>
+      </div>
+    </div>
+    <h3>CLI Deployment Example</h3>
+    <div class="code-block">
+<span class="cmt"># Deploy a template to a resource group</span>
+az deployment group create \
+  --resource-group <span class="str">rg-myapp-dev</span> \
+  --template-file <span class="str">main.json</span> \
+  --parameters <span class="str">vmName=myVM environment=dev</span>
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="sec" id="s7">
+    <div class="sec-eye">Section 07</div>
+    <h2>Bicep — The Modern Alternative to ARM JSON</h2>
+    <p><strong>Bicep</strong> is Microsoft's domain-specific language (DSL) for ARM templates. It compiles down to ARM JSON, so everything ARM can do, Bicep can do — but with much cleaner syntax.</p>
+    <h3>ARM JSON vs. Bicep — Same Storage Account</h3>
+    <div class="bicep-vs">
+      <div class="bv arm">
+        <div class="bv-label">ARM JSON (verbose)</div>
+        <pre>{
+  "type": "Microsoft.Storage/storageAccounts",
+  "apiVersion": "2023-01-01",
+  "name": "[parameters('storageName')]",
+  "location": "[resourceGroup().location]",
+  "sku": { "name": "Standard_LRS" },
+  "kind": "StorageV2",
+  "properties": {}
+}</pre>
+      </div>
+      <div class="bv bicep">
+        <div class="bv-label">Bicep (clean)</div>
+        <pre>resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: storageName
+  location: resourceGroup().location
+  sku: { name: 'Standard_LRS' }
+  kind: 'StorageV2'
+}</pre>
+      </div>
+    </div>
+    <h3>Bicep Advantages</h3>
+    <ul>
+      <li>Much less verbose — no <code>$schema</code>, no square-bracket expressions</li>
+      <li>Native type safety — editor catches errors as you type</li>
+      <li>Modules — split large templates into reusable files</li>
+      <li>Microsoft recommends Bicep for all new projects over ARM JSON</li>
+    </ul>
+    <div class="callout info">
+      <div class="callout-head">For AZ-104 Exam</div>
+      The exam tests ARM template concepts (structure, parameters, functions). You don't need to memorize Bicep syntax, but know that Bicep compiles to ARM JSON and is the preferred way to write IaC on Azure today.
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="sec" id="s8">
+    <div class="sec-eye">Section 08</div>
+    <h2>Summary — Key Points</h2>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="si-label">ARM</div><p>Deployment &amp; management layer for ALL Azure resources. Portal, CLI, PowerShell all go through ARM.</p></div>
+      <div class="sum-item"><div class="si-label">Template Sections</div><p>$schema, contentVersion, parameters, variables, resources, outputs.</p></div>
+      <div class="sum-item"><div class="si-label">Parameters</div><p>Input at deploy time. Makes templates reusable across Dev/Staging/Prod.</p></div>
+      <div class="sum-item"><div class="si-label">Variables</div><p>Computed values inside the template. No user input needed.</p></div>
+      <div class="sum-item"><div class="si-label">dependsOn</div><p>Forces sequential deployment. ARM deploys in parallel by default.</p></div>
+      <div class="sum-item"><div class="si-label">Bicep</div><p>Cleaner syntax, compiles to ARM JSON. Preferred for new projects.</p></div>
+    </div>
+  </div>
+
+  <!-- S9 -->
+  <div class="sec" id="s9">
+    <div class="sec-eye">Section 09</div>
+    <h2>Official Documentation</h2>
+    <p>All links go to <strong>learn.microsoft.com</strong> — Microsoft's official documentation.</p>
+    <div class="tbl-wrap">
+      <table class="docs-table">
+        <thead><tr><th>Topic</th><th>Microsoft Learn URL</th></tr></thead>
+        <tbody>
+          <tr><td>ARM Templates Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/overview" target="_blank">arm/templates/overview</a></td></tr>
+          <tr><td>Template Structure &amp; Syntax</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-syntax" target="_blank">arm/templates/template-syntax</a></td></tr>
+          <tr><td>Parameters in Templates</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/parameters" target="_blank">arm/templates/parameters</a></td></tr>
+          <tr><td>Template Functions Reference</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/template-functions" target="_blank">arm/templates/template-functions</a></td></tr>
+          <tr><td>Deploy via CLI</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/deploy-cli" target="_blank">arm/templates/deploy-cli</a></td></tr>
+          <tr><td>Bicep Documentation</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview" target="_blank">arm/bicep/overview</a></td></tr>
+          <tr><td>Bicep vs ARM JSON</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/compare-template-syntax" target="_blank">arm/bicep/compare-template-syntax</a></td></tr>
+          <tr><td>ARM Template Reference (all resources)</td><td><a href="https://learn.microsoft.com/en-us/azure/templates/" target="_blank">learn.microsoft.com/azure/templates</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout tip">
+      <div class="callout-head">Free Tool: ARM TTK</div>
+      The ARM Template Toolkit (TTK) is a free open-source linter for ARM templates. Run it locally to catch errors before deploying. GitHub: <a href="https://github.com/Azure/arm-ttk" target="_blank">github.com/Azure/arm-ttk</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>IIMT University, Meerut · Cloud Computing (AZ-104) · 3rd Semester</strong><br>
+    Module 02 — ARM Templates &amp; Bicep · Theory Notes
+  </div>
+
+</div>
+</body>
+</html>

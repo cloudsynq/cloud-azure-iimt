@@ -20,16 +20,23 @@ Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 ### Module 01 · Resource Groups, RBAC & Virtual Machines
 | Material | Link |
 |---|---|
+| Theory Notes | [Open in browser](01-resource-groups-vms/theory-notes.html) |
 | Lab Guide | [Slides](01-resource-groups-vms/lab-guide.pptx) |
 | Lab: Resource Group & VM | [PDF](01-resource-groups-vms/lab-resource-group-vm.pdf) |
 
 ---
 
-### Module 02 · ARM Templates *(covered in class — materials coming soon)*
+### Module 02 · ARM Templates & Bicep
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](02-arm-templates/theory-notes.html) |
 
 ---
 
-### Module 03 · Azure Virtual Machines *(covered in class — materials coming soon)*
+### Module 03 · Azure Virtual Machines — Deep Dive
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](03-azure-vms/theory-notes.html) |
 
 ---
 

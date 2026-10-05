@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Azure Virtual Machines — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg:#F4F8FF; --surface:#FFFFFF; --surface-2:#EEF4FF;
+    --text:#0E1E35; --text-muted:#4A6080; --text-light:#8AA0BC;
+    --accent:#0078D4; --accent-light:#DDEEFF; --accent-dark:#005A9E;
+    --azure-dark:#0A2540; --border:#D4E4F7; --border-light:#EAF2FF;
+    --green:#107C10; --green-bg:#DFF6DD; --orange:#C55A11; --orange-bg:#FFF4CE;
+    --red:#A4262C; --red-bg:#FDE7E9; --purple:#5C2D91; --purple-bg:#EDE7F6;
+    --shadow:0 2px 8px rgba(0,120,212,.08),0 1px 2px rgba(0,0,0,.04);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#07111F; --surface:#0D1F35; --surface-2:#132840;
+      --text:#D8E8F8; --text-muted:#7A9BBE; --text-light:#4A6A8E;
+      --accent:#4BA3E8; --accent-light:#0A2040; --accent-dark:#79BFF5;
+      --azure-dark:#061428; --border:#1A3050; --border-light:#0F2030;
+      --green:#6CCB5F; --green-bg:#0A2510; --orange:#F7A850; --orange-bg:#251500;
+      --red:#F1707A; --red-bg:#250A0C; --purple:#C2A7F0; --purple-bg:#1A0A35;
+      --shadow:0 2px 8px rgba(0,0,0,.4); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#07111F; --surface:#0D1F35; --surface-2:#132840;
+    --text:#D8E8F8; --text-muted:#7A9BBE; --text-light:#4A6A8E;
+    --accent:#4BA3E8; --accent-light:#0A2040; --accent-dark:#79BFF5;
+    --azure-dark:#061428; --border:#1A3050; --border-light:#0F2030;
+    --green:#6CCB5F; --green-bg:#0A2510; --orange:#F7A850; --orange-bg:#251500;
+    --red:#F1707A; --red-bg:#250A0C; --purple:#C2A7F0; --purple-bg:#1A0A35;
+    --shadow:0 2px 8px rgba(0,0,0,.4); color-scheme:dark;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; }
+  body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.75; padding-inline:16px; }
+  .wrap { max-width:900px; margin:0 auto; padding-block:36px 80px; }
+  .header { background:linear-gradient(135deg,var(--azure-dark) 0%,#003F7F 100%); border-radius:16px; padding:40px; margin-bottom:32px; position:relative; overflow:hidden; }
+  .header::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(0,120,212,.35) 0%,transparent 70%); }
+  .header-eye { font-family:'Outfit',sans-serif; font-size:11px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#60B8FF; margin-bottom:10px; }
+  .header h1 { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800; color:#FFF; line-height:1.2; text-wrap:balance; margin-bottom:16px; }
+  .header h1 em { color:#60B8FF; font-style:normal; }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill { background:rgba(255,255,255,.12); color:rgba(255,255,255,.85); border-radius:100px; padding:4px 14px; font-size:12px; font-weight:500; }
+  .pill b { color:#60B8FF; }
+  .toc { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px 28px; margin-bottom:28px; box-shadow:var(--shadow); }
+  .toc-head { font-family:'Outfit',sans-serif; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:14px; }
+  .toc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:6px; }
+  .toc-grid a { display:flex; align-items:center; gap:8px; color:var(--text); text-decoration:none; font-size:13.5px; padding:6px 10px; border-radius:7px; transition:background .15s; }
+  .toc-grid a:hover { background:var(--accent-light); color:var(--accent); }
+  .toc-num { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:600; color:var(--accent); background:var(--accent-light); border-radius:5px; padding:2px 7px; flex-shrink:0; }
+  .sec { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:32px 36px; margin-bottom:22px; box-shadow:var(--shadow); scroll-margin-top:16px; }
+  .sec-eye { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+  .sec h2 { font-family:'Outfit',sans-serif; font-size:1.4rem; font-weight:700; color:var(--text); margin-bottom:20px; padding-bottom:14px; border-bottom:2px solid var(--border-light); text-wrap:balance; }
+  .sec h3 { font-family:'Outfit',sans-serif; font-size:1.05rem; font-weight:600; color:var(--text); margin:24px 0 10px; }
+  .sec h3::before { content:'▸ '; color:var(--accent); }
+  .sec p { color:var(--text); margin-bottom:12px; }
+  .sec ul, .sec ol { padding-left:20px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+  .sec li { color:var(--text); }
+  .sec li::marker { color:var(--accent); }
+  .analogy { background:var(--orange-bg); border-left:4px solid var(--orange); border-radius:0 10px 10px 0; padding:16px 20px; margin:18px 0; font-size:14px; }
+  .analogy-head { font-family:'Outfit',sans-serif; font-weight:700; font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--orange); margin-bottom:6px; }
+  .callout { border-radius:10px; padding:16px 20px; margin:18px 0; border-left:4px solid; font-size:14px; }
+  .callout-head { font-family:'Outfit',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:.04em; text-transform:uppercase; margin-bottom:6px; }
+  .callout.info  { background:var(--accent-light); border-color:var(--accent); }
+  .callout.info .callout-head { color:var(--accent-dark); }
+  .callout.tip   { background:var(--green-bg); border-color:var(--green); }
+  .callout.tip .callout-head { color:var(--green); }
+  .callout.warn  { background:var(--orange-bg); border-color:var(--orange); }
+  .callout.warn .callout-head { color:var(--orange); }
+  .tbl-wrap { overflow-x:auto; margin:18px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { background:var(--azure-dark); color:#FFF; font-family:'Outfit',sans-serif; font-weight:600; font-size:12px; text-align:left; padding:11px 16px; }
+  th:first-child { border-radius:8px 0 0 0; } th:last-child { border-radius:0 8px 0 0; }
+  td { padding:10px 16px; border-bottom:1px solid var(--border-light); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:var(--surface-2); }
+  .vm-series { display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:12px; margin:18px 0; }
+  .vsc { border-radius:12px; padding:16px; border:1.5px solid var(--border); }
+  .vsc.gen  { border-color:#0078D4; background:var(--accent-light); }
+  .vsc.comp { border-color:#107C10; background:var(--green-bg); }
+  .vsc.mem  { border-color:#5C2D91; background:var(--purple-bg); }
+  .vsc.stor { border-color:#C55A11; background:var(--orange-bg); }
+  .vsc.gpu  { border-color:#A4262C; background:var(--red-bg); }
+  .vsc-tag { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; display:block; margin-bottom:5px; }
+  .vsc h4 { font-family:'Outfit',sans-serif; font-size:.88rem; font-weight:700; color:var(--text); margin-bottom:3px; }
+  .vsc p { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .disk-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:18px 0; }
+  .disk { border-radius:12px; padding:16px; border:1.5px solid var(--border); background:var(--surface-2); }
+  .disk h4 { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .disk p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .disk code { font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .avail-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin:18px 0; }
+  .avail { border-radius:12px; padding:18px; border:1.5px solid var(--border); }
+  .avail.set { border-color:#0078D4; background:var(--accent-light); }
+  .avail.zone { border-color:#107C10; background:var(--green-bg); }
+  .avail.vmss { border-color:#5C2D91; background:var(--purple-bg); }
+  .avail h4 { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .avail p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.5; }
+  .price-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:18px 0; }
+  .price { border-radius:12px; padding:18px; border:1.5px solid var(--border); background:var(--surface-2); }
+  .price h4 { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .price p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.5; }
+  .price-tag { font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; display:block; margin-bottom:6px; }
+  .sum-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:18px; }
+  .sum-item { background:var(--azure-dark); color:#FFF; border-radius:12px; padding:18px 20px; }
+  .sum-item .si-label { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:#60B8FF; margin-bottom:6px; }
+  .sum-item p { font-size:13px; color:rgba(255,255,255,.8); margin:0; line-height:1.5; }
+  .docs-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .docs-table th { background:var(--azure-dark); color:#60B8FF; font-family:'Outfit',sans-serif; font-size:11.5px; padding:10px 14px; text-align:left; }
+  .docs-table th:first-child { border-radius:8px 0 0 0; } .docs-table th:last-child { border-radius:0 8px 0 0; }
+  .docs-table td { padding:9px 14px; border-bottom:1px solid var(--border-light); }
+  .docs-table a { color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:12px; text-decoration:none; }
+  .docs-table a:hover { text-decoration:underline; }
+  .footer { margin-top:48px; padding:20px 0; border-top:1px solid var(--border); text-align:center; font-size:13px; color:var(--text-muted); }
+  @media (max-width:620px) { .header{padding:28px 20px;} .header h1{font-size:1.5rem;} .sec{padding:22px 18px;} .toc-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="header-eye">Module 03 · AZ-104 · IIMT University, Meerut</div>
+    <h1>Azure <em>Virtual Machines</em> — Deep Dive</h1>
+    <div class="pills">
+      <span class="pill">3rd Semester</span>
+      <span class="pill"><b>Compute</b></span>
+      <span class="pill">VM Sizes &amp; Disks</span>
+      <span class="pill">High Availability</span>
+      <span class="pill">Pricing</span>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-head">Table of Contents</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span> VM Sizes &amp; Series</a>
+      <a href="#s2"><span class="toc-num">02</span> VM Images</a>
+      <a href="#s3"><span class="toc-num">03</span> VM Disks</a>
+      <a href="#s4"><span class="toc-num">04</span> VM Networking</a>
+      <a href="#s5"><span class="toc-num">05</span> Connecting to VMs</a>
+      <a href="#s6"><span class="toc-num">06</span> Availability Options</a>
+      <a href="#s7"><span class="toc-num">07</span> VM Extensions</a>
+      <a href="#s8"><span class="toc-num">08</span> VM Pricing Models</a>
+      <a href="#s9"><span class="toc-num">09</span> Summary</a>
+      <a href="#s10"><span class="toc-num">10</span> Official Docs</a>
+    </div>
+  </div>
+
+  <!-- S1 -->
+  <div class="sec" id="s1">
+    <div class="sec-eye">Section 01</div>
+    <h2>VM Sizes &amp; Series</h2>
+    <p>Azure VMs come in many sizes, grouped into <em>series</em> based on their purpose. You choose the series based on your workload type — don't just pick the cheapest; match the right type to your need.</p>
+    <div class="vm-series">
+      <div class="vsc gen"><span class="vsc-tag" style="color:#005A9E;">B / D / E series</span><h4>General Purpose</h4><p>Balanced CPU &amp; RAM. Good for web servers, dev environments, small databases.</p></div>
+      <div class="vsc comp"><span class="vsc-tag" style="color:#107C10;">F / FX series</span><h4>Compute Optimized</h4><p>High CPU-to-RAM ratio. Best for media transcoding, batch processing, gaming servers.</p></div>
+      <div class="vsc mem"><span class="vsc-tag" style="color:#5C2D91;">E / M / G series</span><h4>Memory Optimized</h4><p>High RAM. Best for in-memory databases (SAP HANA, SQL Server), caching.</p></div>
+      <div class="vsc stor"><span class="vsc-tag" style="color:#C55A11;">L series</span><h4>Storage Optimized</h4><p>High disk throughput &amp; IOPS. Best for big data, NoSQL, data warehousing.</p></div>
+      <div class="vsc gpu"><span class="vsc-tag" style="color:#A4262C;">N series</span><h4>GPU</h4><p>NVIDIA GPU. Best for AI/ML training, 3D rendering, visualization.</p></div>
+    </div>
+    <h3>Common Sizes You'll Use</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Size</th><th>vCPUs</th><th>RAM</th><th>Best for</th><th>Free Tier?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>B1s</strong></td><td>1</td><td>1 GB</td><td>Test / dev only</td><td>Yes (750 hrs/month)</td></tr>
+          <tr><td><strong>B2s</strong></td><td>2</td><td>4 GB</td><td>Light web server</td><td>No</td></tr>
+          <tr><td><strong>D2s_v3</strong></td><td>2</td><td>8 GB</td><td>General web app</td><td>No</td></tr>
+          <tr><td><strong>D4s_v3</strong></td><td>4</td><td>16 GB</td><td>Mid-size apps</td><td>No</td></tr>
+          <tr><td><strong>E4s_v3</strong></td><td>4</td><td>32 GB</td><td>In-memory workloads</td><td>No</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout info">
+      <div class="callout-head">Size Naming Convention</div>
+      <code>Standard_D2s_v3</code> — Standard tier, D-series, 2 vCPUs, 's' = supports Premium SSD, v3 = version 3. Always check <a href="https://learn.microsoft.com/en-us/azure/virtual-machines/sizes" target="_blank">azure VM sizes page</a> for latest pricing.
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="sec" id="s2">
+    <div class="sec-eye">Section 02</div>
+    <h2>VM Images</h2>
+    <p>A VM <strong>Image</strong> is the template used to create the OS disk of your VM. It includes the operating system and sometimes pre-installed software.</p>
+    <h3>Types of Images</h3>
+    <ul>
+      <li><strong>Azure Marketplace</strong> — official images from Microsoft and third-party publishers: Windows Server 2022, Ubuntu 22.04, Red Hat, CentOS, SQL Server on Windows, etc.</li>
+      <li><strong>Custom Image</strong> — you create a VM, install your software, then capture it as a "golden image" to deploy more VMs from</li>
+      <li><strong>Azure Compute Gallery</strong> (formerly Shared Image Gallery) — store and share custom images across subscriptions and regions</li>
+    </ul>
+    <h3>Image URN Format</h3>
+    <p>When using CLI, images are referenced by a URN: <code>Publisher:Offer:SKU:Version</code></p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>OS</th><th>Image URN</th></tr></thead>
+        <tbody>
+          <tr><td>Ubuntu 22.04 LTS</td><td><code>Canonical:0001-com-ubuntu-server-jammy:22_04-lts:latest</code></td></tr>
+          <tr><td>Windows Server 2022</td><td><code>MicrosoftWindowsServer:WindowsServer:2022-Datacenter:latest</code></td></tr>
+          <tr><td>Red Hat Enterprise Linux 9</td><td><code>RedHat:RHEL:9_1:latest</code></td></tr>
+          <tr><td>Debian 12</td><td><code>Debian:debian-12:12:latest</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout tip">
+      <div class="callout-head">For Students</div>
+      Stick to <strong>Ubuntu 22.04 LTS</strong> for lab work — it's free, well-documented, and the most common choice for Linux servers on Azure. Windows Server VMs use more RAM and cost more.
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="sec" id="s3">
+    <div class="sec-eye">Section 03</div>
+    <h2>VM Disks</h2>
+    <p>Every Azure VM has at least one disk. Understanding disk types helps you choose the right balance of performance and cost.</p>
+    <h3>Types of Disks by Role</h3>
+    <div class="disk-grid">
+      <div class="disk">
+        <h4>OS Disk</h4>
+        <p>Contains the operating system. Created from the VM image. Max 4 TB. Cannot be detached from a running VM.</p>
+      </div>
+      <div class="disk">
+        <h4>Data Disk</h4>
+        <p>Additional disk for your data. Can attach/detach while VM is running. Multiple allowed per VM.</p>
+      </div>
+      <div class="disk">
+        <h4>Temp Disk</h4>
+        <p><strong>Not persistent.</strong> Data lost on VM reboot/stop. Used for page file, swap file. Do NOT store important data here.</p>
+      </div>
+    </div>
+    <h3>Disk Performance Tiers (Storage Types)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tier</th><th>Type</th><th>IOPS</th><th>Latency</th><th>Best for</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Standard HDD</strong></td><td>Magnetic</td><td>Up to 500</td><td>~10ms</td><td>Dev/test, non-critical workloads</td></tr>
+          <tr><td><strong>Standard SSD</strong></td><td>SSD</td><td>Up to 6,000</td><td>~4ms</td><td>Light production, web servers</td></tr>
+          <tr><td><strong>Premium SSD</strong></td><td>SSD</td><td>Up to 20,000</td><td>&lt;1ms</td><td>Production databases, I/O-heavy apps</td></tr>
+          <tr><td><strong>Ultra Disk</strong></td><td>SSD</td><td>Up to 160,000</td><td>&lt;1ms</td><td>Mission-critical SAP HANA, SQL</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <div class="callout-head">Temp Disk Warning</div>
+      The temporary disk (usually <code>/dev/sdb</code> on Linux, <code>D:</code> on Windows) is physically attached to the VM host and is <strong>wiped on every VM stop/restart</strong>. Never put application data, database files, or SSH keys on the temp disk.
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="sec" id="s4">
+    <div class="sec-eye">Section 04</div>
+    <h2>VM Networking</h2>
+    <p>A VM is always connected to a Virtual Network (VNet). Understanding the networking components is essential for troubleshooting connectivity.</p>
+    <h3>Network Components for a VM</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>What it is</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Virtual Network (VNet)</strong></td><td>Your private network in Azure — like your own LAN in the cloud</td><td>VMs in the same VNet can talk to each other by private IP</td></tr>
+          <tr><td><strong>Subnet</strong></td><td>A segment within the VNet — used to organize resources</td><td>VMs must be placed in a subnet</td></tr>
+          <tr><td><strong>Network Interface Card (NIC)</strong></td><td>The VM's network adapter</td><td>Each NIC has a private IP; can optionally have a public IP attached</td></tr>
+          <tr><td><strong>Public IP Address</strong></td><td>Internet-accessible IP for the VM</td><td>Optional. Dynamic IPs change on restart; use Static if needed</td></tr>
+          <tr><td><strong>Network Security Group (NSG)</strong></td><td>Firewall rules — allow or deny traffic</td><td>Can be attached to a Subnet or a NIC</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>NSG Rules — Allow/Deny Traffic</h3>
+    <p>NSG rules have a <strong>priority</strong> (100–4096, lower = higher priority), direction (inbound/outbound), protocol (TCP/UDP/Any), port range, and action (Allow/Deny).</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Port</th><th>Protocol</th><th>Purpose</th><th>OS</th></tr></thead>
+        <tbody>
+          <tr><td>22</td><td>TCP</td><td>SSH — connect to Linux VM terminal</td><td>Linux</td></tr>
+          <tr><td>3389</td><td>TCP</td><td>RDP — Remote Desktop to Windows VM</td><td>Windows</td></tr>
+          <tr><td>80</td><td>TCP</td><td>HTTP — web traffic</td><td>Both</td></tr>
+          <tr><td>443</td><td>TCP</td><td>HTTPS — secure web traffic</td><td>Both</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <div class="callout-head">Security Best Practice</div>
+      Never open port 22 (SSH) or 3389 (RDP) to the entire internet (<code>0.0.0.0/0</code>) in production. Restrict to your IP or use <strong>Azure Bastion</strong> for secure browser-based access — no public IP needed on the VM.
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="sec" id="s5">
+    <div class="sec-eye">Section 05</div>
+    <h2>Connecting to Virtual Machines</h2>
+    <h3>Linux VMs — SSH</h3>
+    <p>Connect using an SSH key pair (recommended) or password. Azure generates or you upload a public key. The private key stays on your machine.</p>
+    <div style="background:var(--azure-dark); color:#D4E8FF; border-radius:10px; padding:18px 20px; margin:14px 0; font-family:'JetBrains Mono',monospace; font-size:13px; line-height:1.7;">
+      <span style="color:#8B949E;"># Connect to Linux VM (replace with your IP and username)</span><br>
+      ssh -i ~/.ssh/id_rsa azureuser@&lt;public-ip-address&gt;
+    </div>
+    <h3>Windows VMs — RDP</h3>
+    <p>Download the RDP file from the Azure portal, open it in Remote Desktop Connection, and enter your username/password.</p>
+    <h3>Azure Bastion — No Public IP Needed</h3>
+    <p>Azure Bastion is a fully managed PaaS service that lets you connect to VMs securely <strong>from the browser</strong>, over TLS (port 443). The VM does NOT need a public IP or open SSH/RDP ports.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Requires Public IP</th><th>Requires open port</th><th>Security</th></tr></thead>
+        <tbody>
+          <tr><td>SSH direct</td><td>Yes</td><td>Port 22</td><td>Moderate (exposed to internet)</td></tr>
+          <tr><td>RDP direct</td><td>Yes</td><td>Port 3389</td><td>Moderate (exposed to internet)</td></tr>
+          <tr><td><strong>Azure Bastion</strong></td><td><strong>No</strong></td><td><strong>No</strong></td><td><strong>High (browser-based, TLS)</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="sec" id="s6">
+    <div class="sec-eye">Section 06</div>
+    <h2>Availability Options</h2>
+    <p>A single VM can fail due to hardware issues, maintenance, or data center outages. Azure offers three options to improve availability:</p>
+    <div class="avail-grid">
+      <div class="avail set">
+        <h4>Availability Set</h4>
+        <p>Spreads VMs across <strong>Fault Domains</strong> (separate hardware racks) and <strong>Update Domains</strong> (patched at different times). Protects against hardware failure and maintenance downtime.</p>
+        <p style="margin-top:8px; font-size:12px;"><strong>SLA: 99.95%</strong> uptime guaranteed.</p>
+      </div>
+      <div class="avail zone">
+        <h4>Availability Zones</h4>
+        <p>Spreads VMs across physically <strong>separate data centers</strong> (zones) within the same region. Each zone has independent power, cooling, networking.</p>
+        <p style="margin-top:8px; font-size:12px;"><strong>SLA: 99.99%</strong> uptime guaranteed.</p>
+      </div>
+      <div class="avail vmss">
+        <h4>VM Scale Sets</h4>
+        <p>Automatically deploy and scale a <strong>group of identical VMs</strong>. Scale out when load increases, scale in when load drops. Load balancer distributes traffic.</p>
+        <p style="margin-top:8px; font-size:12px;">Best for auto-scaling web tiers.</p>
+      </div>
+    </div>
+    <div class="analogy">
+      <div class="analogy-head">Analogy</div>
+      <strong>Availability Set</strong> = eggs in different rows of the same fridge shelf. <strong>Availability Zones</strong> = eggs in different fridges in different buildings. <strong>Scale Sets</strong> = a farm that automatically lays more eggs when demand increases.
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="sec" id="s7">
+    <div class="sec-eye">Section 07</div>
+    <h2>VM Extensions</h2>
+    <p>VM Extensions are small scripts or applications that automate configuration tasks on VMs <em>after</em> they're deployed. No SSH or RDP needed — Azure runs them for you.</p>
+    <h3>Common Extensions</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Extension</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Custom Script Extension</strong></td><td>Runs a bash/PowerShell script on the VM. Use it to install software, configure services.</td></tr>
+          <tr><td><strong>Azure Monitor Agent</strong></td><td>Collects logs and metrics from the VM and sends to Azure Monitor / Log Analytics.</td></tr>
+          <tr><td><strong>Desired State Configuration (DSC)</strong></td><td>Keeps VM config consistent with a PowerShell DSC script — self-heals if config drifts.</td></tr>
+          <tr><td><strong>Antimalware Extension</strong></td><td>Runs Microsoft Antimalware on Windows VMs — real-time protection.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout info">
+      <div class="callout-head">Custom Script Extension Example</div>
+      To install Nginx on an Ubuntu VM: upload a shell script to a Storage Account, then run the Custom Script Extension pointing to it. The VM will download and execute it automatically — no SSH session needed.
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="sec" id="s8">
+    <div class="sec-eye">Section 08</div>
+    <h2>VM Pricing Models</h2>
+    <p>Azure offers multiple pricing options for VMs. Choosing the right model can reduce your bill by up to 90%.</p>
+    <div class="price-grid">
+      <div class="price">
+        <span class="price-tag" style="color:var(--accent);">PAY-AS-YOU-GO</span>
+        <h4>On-Demand</h4>
+        <p>Pay by the hour/second. No commitment. Most expensive but most flexible.</p>
+        <p style="margin-top:6px; font-size:12px;">Best for: dev, testing, unpredictable workloads.</p>
+      </div>
+      <div class="price">
+        <span class="price-tag" style="color:var(--green);">RESERVED</span>
+        <h4>Reserved Instances</h4>
+        <p>Commit to 1 or 3 years. Get up to <strong>72% discount</strong> vs. on-demand.</p>
+        <p style="margin-top:6px; font-size:12px;">Best for: stable, predictable workloads.</p>
+      </div>
+      <div class="price">
+        <span class="price-tag" style="color:var(--orange);">SPOT</span>
+        <h4>Spot VMs</h4>
+        <p>Use Azure's unused capacity at up to <strong>90% discount</strong>. Can be evicted (stopped) with 30s notice when Azure needs the capacity back.</p>
+        <p style="margin-top:6px; font-size:12px;">Best for: batch jobs, fault-tolerant workloads.</p>
+      </div>
+      <div class="price">
+        <span class="price-tag" style="color:var(--purple);">HYBRID BENEFIT</span>
+        <h4>Azure Hybrid Benefit</h4>
+        <p>If you have existing on-prem Windows Server or SQL Server licenses, use them on Azure. Saves up to <strong>40% more</strong> on top of reserved pricing.</p>
+      </div>
+    </div>
+    <div class="callout tip">
+      <div class="callout-head">Free Tier for Students</div>
+      Azure Free Account gives <strong>750 hours/month of B1s VM</strong> free for 12 months. That's one VM running 24/7 for the entire year — plenty for lab work. Sign up at <a href="https://azure.microsoft.com/free/students" target="_blank">azure.microsoft.com/free/students</a>.
+    </div>
+  </div>
+
+  <!-- S9 -->
+  <div class="sec" id="s9">
+    <div class="sec-eye">Section 09</div>
+    <h2>Summary — Key Points</h2>
+    <div class="sum-grid">
+      <div class="sum-item"><div class="si-label">VM Series</div><p>B/D = general purpose · F = compute · E/M = memory · L = storage · N = GPU</p></div>
+      <div class="sum-item"><div class="si-label">Disks</div><p>OS disk (boot), Data disk (persistent), Temp disk (LOST on reboot). HDD → SSD → Premium → Ultra</p></div>
+      <div class="sum-item"><div class="si-label">Networking</div><p>VNet + Subnet + NIC + NSG. Public IP optional. NSG = firewall (port 22/3389).</p></div>
+      <div class="sum-item"><div class="si-label">Bastion</div><p>Browser-based SSH/RDP. No public IP needed. Highest security.</p></div>
+      <div class="sum-item"><div class="si-label">Availability</div><p>Set (99.95%) → Zones (99.99%) → Scale Sets (auto-scale)</p></div>
+      <div class="sum-item"><div class="si-label">Pricing</div><p>On-demand &gt; Reserved (72% off) &gt; Spot (90% off). Match to workload stability.</p></div>
+    </div>
+  </div>
+
+  <!-- S10 -->
+  <div class="sec" id="s10">
+    <div class="sec-eye">Section 10</div>
+    <h2>Official Documentation</h2>
+    <p>All links go to <strong>learn.microsoft.com</strong> — Microsoft's official documentation.</p>
+    <div class="tbl-wrap">
+      <table class="docs-table">
+        <thead><tr><th>Topic</th><th>Microsoft Learn URL</th></tr></thead>
+        <tbody>
+          <tr><td>VM Sizes Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machines/sizes" target="_blank">virtual-machines/sizes</a></td></tr>
+          <tr><td>Create a Linux VM</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal" target="_blank">virtual-machines/linux/quick-create-portal</a></td></tr>
+          <tr><td>Create a Windows VM</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal" target="_blank">virtual-machines/windows/quick-create-portal</a></td></tr>
+          <tr><td>VM Disk Types</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types" target="_blank">virtual-machines/disks-types</a></td></tr>
+          <tr><td>Network Security Groups</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview" target="_blank">virtual-network/network-security-groups-overview</a></td></tr>
+          <tr><td>Azure Bastion</td><td><a href="https://learn.microsoft.com/en-us/azure/bastion/bastion-overview" target="_blank">bastion/bastion-overview</a></td></tr>
+          <tr><td>Availability Sets</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machines/availability-set-overview" target="_blank">virtual-machines/availability-set-overview</a></td></tr>
+          <tr><td>Availability Zones</td><td><a href="https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview" target="_blank">reliability/availability-zones-overview</a></td></tr>
+          <tr><td>VM Scale Sets</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview" target="_blank">virtual-machine-scale-sets/overview</a></td></tr>
+          <tr><td>VM Pricing</td><td><a href="https://azure.microsoft.com/en-us/pricing/details/virtual-machines/" target="_blank">azure.microsoft.com/pricing/details/virtual-machines</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout tip">
+      <div class="callout-head">Free Labs</div>
+      Microsoft Learn has free <strong>sandbox-based labs</strong> — no credit card needed. Search "Create a virtual machine" on <a href="https://learn.microsoft.com" target="_blank">learn.microsoft.com</a> and run interactive exercises directly in the browser.
+    </div>
+  </div>
+
+  <div class="footer">
+    <strong>IIMT University, Meerut · Cloud Computing (AZ-104) · 3rd Semester</strong><br>
+    Module 03 — Azure Virtual Machines · Theory Notes
+  </div>
+
+</div>
+</body>
+</html>
