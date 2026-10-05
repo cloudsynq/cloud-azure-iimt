@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intersite Connectivity — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--org:#C55A11;--org-l:#FFF4CE;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.warn{background:var(--red-l);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.info{background:var(--org-l);border-left:3px solid var(--org);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--acc-l);color:var(--acc);border-radius:4px;padding:2px 8px;margin:2px;}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol,.grid2,.grid3{grid-template-columns:1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 06</div>
+  <h1>Intersite <em>Connectivity</em></h1>
+  <div class="hero-sub">VNet Peering · VPN Gateway · ExpressRoute · Virtual WAN · Custom Routes</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#overview">Why Intersite Connectivity?</a></li>
+    <li><a href="#peering">VNet Peering</a></li>
+    <li><a href="#vpn">VPN Gateway</a></li>
+    <li><a href="#expressroute">ExpressRoute</a></li>
+    <li><a href="#udr">Custom Routes (UDR)</a></li>
+    <li><a href="#vwan">Azure Virtual WAN</a></li>
+    <li><a href="#summary">Summary &amp; Comparison</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="overview">
+  <div class="sec-eye">Section 01</div>
+  <h2>Why Intersite Connectivity?</h2>
+  <p>Azure VNets are isolated by default. Resources in VNet-A cannot communicate with VNet-B, and your on-premises office cannot reach your Azure VMs — unless you explicitly connect them. Intersite connectivity options solve this.</p>
+  <div class="grid3">
+    <div class="card">
+      <h4>VNet ↔ VNet</h4>
+      <p>Connect two Azure VNets (same or different regions/subscriptions)</p>
+    </div>
+    <div class="card">
+      <h4>On-Premises ↔ Azure</h4>
+      <p>Connect your office/datacenter to Azure over internet (VPN) or private line (ExpressRoute)</p>
+    </div>
+    <div class="card">
+      <h4>Hub-Spoke Topology</h4>
+      <p>One central hub VNet connects to many spoke VNets — shared services model</p>
+    </div>
+  </div>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="peering">
+  <div class="sec-eye">Section 02</div>
+  <h2>VNet Peering</h2>
+  <p>VNet Peering connects two VNets using Microsoft's <strong>backbone network</strong> (not the public internet). Traffic is private, low-latency, and high-bandwidth.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>Regional Peering</h4>
+      <ul>
+        <li>Same Azure region</li>
+        <li>Lowest latency</li>
+        <li>No gateway required</li>
+        <li>Inbound/outbound data charged</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Global VNet Peering</h4>
+      <ul>
+        <li>Different Azure regions</li>
+        <li>Cross-region private connectivity</li>
+        <li>Slightly higher cost than regional</li>
+        <li>Same benefits as regional</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Key Rules</h3>
+  <ul>
+    <li>Peering is <strong>non-transitive</strong> — if A↔B and B↔C, A cannot reach C automatically. You must peer A↔C separately (or use Azure Virtual WAN / hub).</li>
+    <li>Address spaces must <strong>not overlap</strong> between peered VNets.</li>
+    <li>Peering is a <strong>two-way link</strong> — you must create peering from both sides (A→B and B→A).</li>
+    <li>Peering can span different <strong>subscriptions and tenants</strong> (with proper permissions).</li>
+  </ul>
+  <div class="note">VNet Peering is the cheapest and fastest way to connect two Azure VNets. No gateways, no VPN, no public internet — just Microsoft's backbone.</div>
+  <h3>Use Allow Gateway Transit</h3>
+  <p>In a hub-spoke model, spoke VNets can use the hub's VPN/ExpressRoute gateway by enabling <strong>Use Remote Gateways</strong> (spoke) and <strong>Allow Gateway Transit</strong> (hub) on the peering settings.</p>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="vpn">
+  <div class="sec-eye">Section 03</div>
+  <h2>VPN Gateway</h2>
+  <p>An Azure VPN Gateway creates an <strong>encrypted tunnel over the internet</strong> between your on-premises network (or another VNet) and your Azure VNet. Uses IPsec/IKE protocols.</p>
+  <h3>Types of VPN Connections</h3>
+  <table>
+    <tr><th>Type</th><th>Use Case</th><th>Requires</th></tr>
+    <tr><td>Site-to-Site (S2S)</td><td>Office/datacenter to Azure — always-on</td><td>On-prem VPN device with public IP</td></tr>
+    <tr><td>Point-to-Site (P2S)</td><td>Individual laptops to Azure VPN</td><td>VPN client software on laptop</td></tr>
+    <tr><td>VNet-to-VNet</td><td>Two Azure VNets via VPN (older method, prefer peering)</td><td>Gateway in each VNet</td></tr>
+  </table>
+  <h3>VPN Gateway SKUs</h3>
+  <table>
+    <tr><th>SKU</th><th>Throughput</th><th>Tunnels</th><th>Best for</th></tr>
+    <tr><td>Basic</td><td>100 Mbps</td><td>10</td><td>Dev/test only (no SLA)</td></tr>
+    <tr><td>VpnGw1</td><td>650 Mbps</td><td>30</td><td>Small production</td></tr>
+    <tr><td>VpnGw2</td><td>1 Gbps</td><td>30</td><td>Medium workloads</td></tr>
+    <tr><td>VpnGw3</td><td>1.25 Gbps</td><td>30</td><td>High throughput</td></tr>
+  </table>
+  <div class="warn">VPN Gateway can take 30–45 minutes to provision. It requires its own dedicated subnet named exactly <span class="tag">GatewaySubnet</span> (minimum /27).</div>
+  <h3>Active-Active vs Active-Passive</h3>
+  <ul>
+    <li><strong>Active-Passive (default):</strong> One instance active, one standby. Failover in 10–15 seconds.</li>
+    <li><strong>Active-Active:</strong> Both instances active simultaneously. Higher availability, requires BGP.</li>
+  </ul>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="expressroute">
+  <div class="sec-eye">Section 04</div>
+  <h2>ExpressRoute</h2>
+  <p>ExpressRoute provides a <strong>dedicated private connection</strong> from your on-premises datacenter to Azure — bypassing the public internet entirely. Traffic never traverses the internet.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>VPN Gateway</h4>
+      <ul>
+        <li>Over the internet (encrypted)</li>
+        <li>Max ~10 Gbps</li>
+        <li>Variable latency</li>
+        <li>Lower cost</li>
+        <li>Suitable for most workloads</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>ExpressRoute</h4>
+      <ul>
+        <li>Private line (not internet)</li>
+        <li>Up to 100 Gbps</li>
+        <li>Predictable, low latency</li>
+        <li>Higher cost</li>
+        <li>Banks, healthcare, compliance</li>
+      </ul>
+    </div>
+  </div>
+  <h3>ExpressRoute Circuit</h3>
+  <p>You work with a <strong>connectivity provider</strong> (Airtel, Tata, Equinix, etc.) who physically connects your datacenter to a Microsoft Edge location. Microsoft peering types:</p>
+  <ul>
+    <li><strong>Private Peering:</strong> Access to Azure VMs and services (VNets) — most common.</li>
+    <li><strong>Microsoft Peering:</strong> Access to Microsoft 365, Dynamics 365, Azure PaaS services.</li>
+  </ul>
+  <div class="note">ExpressRoute circuits have an SLA of 99.95%. For 99.99% availability, deploy two circuits from different providers (ExpressRoute Global Reach).</div>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="udr">
+  <div class="sec-eye">Section 05</div>
+  <h2>Custom Routes &amp; User-Defined Routes (UDR)</h2>
+  <p>Azure automatically creates system routes for VNet traffic. But you can override them with <strong>User-Defined Routes (UDR)</strong> — for example, to force all traffic through a firewall or NVA (Network Virtual Appliance).</p>
+  <h3>Common Use Cases</h3>
+  <ul>
+    <li>Force all internet-bound traffic through Azure Firewall for inspection.</li>
+    <li>Route traffic between subnets through an NVA (Palo Alto, Fortinet, etc.).</li>
+    <li>Override BGP routes learned from on-premises.</li>
+  </ul>
+  <h3>Route Priority Order</h3>
+  <ol>
+    <li>User-Defined Routes (highest priority)</li>
+    <li>BGP Routes (from VPN/ExpressRoute)</li>
+    <li>System Routes (Azure default)</li>
+  </ol>
+  <div class="code">Next hop types: VirtualAppliance | VirtualNetworkGateway | VNetLocal | Internet | None</div>
+  <div class="tip">Attach route tables to subnets, not individual VMs. All VMs in a subnet follow the same route table.</div>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="vwan">
+  <div class="sec-eye">Section 06</div>
+  <h2>Azure Virtual WAN</h2>
+  <p>Azure Virtual WAN is a <strong>managed hub-and-spoke networking service</strong> that simplifies connecting many VNets, branches, and remote users through one central hub — without manually managing VNet peerings or route tables.</p>
+  <ul>
+    <li>Automatically manages transitive connectivity (A↔B↔C — all can reach each other).</li>
+    <li>Integrates VPN (site-to-site, point-to-site), ExpressRoute, and VNet connections in one hub.</li>
+    <li>Two SKUs: <strong>Basic</strong> (S2S VPN only) and <strong>Standard</strong> (VPN + ExpressRoute + VNet peering + Azure Firewall).</li>
+    <li>Best for large enterprises with 10+ branch offices or 20+ VNets.</li>
+  </ul>
+  <div class="info">For simple setups (2–5 VNets), stick with manual VNet Peering. Virtual WAN has overhead and cost that only pays off at scale.</div>
+</div>
+
+<!-- 7 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 07</div>
+  <h2>Summary &amp; Comparison</h2>
+  <table>
+    <tr><th>Option</th><th>Use Case</th><th>Medium</th><th>Cost</th></tr>
+    <tr><td>VNet Peering</td><td>VNet-to-VNet (same or different region)</td><td>Microsoft backbone</td><td>Low (data transfer fees)</td></tr>
+    <tr><td>VPN Gateway (S2S)</td><td>On-prem datacenter → Azure</td><td>Internet (encrypted)</td><td>Medium (gateway + data)</td></tr>
+    <tr><td>VPN Gateway (P2S)</td><td>Individual user → Azure</td><td>Internet (encrypted)</td><td>Medium</td></tr>
+    <tr><td>ExpressRoute</td><td>Enterprise on-prem → Azure (private)</td><td>Dedicated private line</td><td>High</td></tr>
+    <tr><td>Virtual WAN</td><td>Large-scale hub-spoke (many sites)</td><td>Mixed</td><td>High (managed service)</td></tr>
+    <tr><td>UDR</td><td>Custom traffic routing via NVA/Firewall</td><td>N/A (routing control)</td><td>Free (pay for NVA/FW)</td></tr>
+  </table>
+</div>
+
+<!-- 8 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — Intersite Connectivity</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>VNet Peering Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview">virtual-network-peering-overview</a></td></tr>
+      <tr><td>Create VNet Peering</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/tutorial-connect-virtual-networks-portal">tutorial-connect-virtual-networks-portal</a></td></tr>
+      <tr><td>VPN Gateway Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways">vpn-gateway-about-vpngateways</a></td></tr>
+      <tr><td>Site-to-Site VPN</td><td><a href="https://learn.microsoft.com/en-us/azure/vpn-gateway/tutorial-site-to-site-portal">tutorial-site-to-site-portal</a></td></tr>
+      <tr><td>ExpressRoute Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction">expressroute-introduction</a></td></tr>
+      <tr><td>User-Defined Routes</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview">virtual-networks-udr-overview</a></td></tr>
+      <tr><td>Azure Virtual WAN</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about">virtual-wan-about</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 06 — Intersite Connectivity</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

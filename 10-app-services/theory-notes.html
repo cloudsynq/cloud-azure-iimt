@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App Services & Containers — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--s3);color:#A8D8FF;padding:16px 20px;border-radius:10px;margin:16px 0;overflow-x:auto;line-height:1.6;}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--acc-l);color:var(--acc);border-radius:4px;padding:2px 8px;margin:2px;}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol,.grid2{grid-template-columns:1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 10</div>
+  <h1>App Services <em>&amp; Containers</em></h1>
+  <div class="hero-sub">App Service Plans · Web Apps · Azure SQL · Docker · AKS · Azure Functions</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#plans">App Service Plans</a></li>
+    <li><a href="#webapp">Azure App Service (Web Apps)</a></li>
+    <li><a href="#sql">Azure SQL Database</a></li>
+    <li><a href="#docker">Containers &amp; Docker</a></li>
+    <li><a href="#acr">Azure Container Registry (ACR)</a></li>
+    <li><a href="#aks">Azure Kubernetes Service (AKS)</a></li>
+    <li><a href="#functions">Azure Functions</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="plans">
+  <div class="sec-eye">Section 01</div>
+  <h2>App Service Plans</h2>
+  <p>An App Service Plan defines the <strong>compute resources</strong> (CPU, RAM, storage) allocated for your web apps. Think of it as the "server" — multiple apps can share one plan.</p>
+  <table>
+    <tr><th>Tier</th><th>Plan</th><th>vCPU/RAM</th><th>Custom Domain/SSL</th><th>Auto-scale</th></tr>
+    <tr><td>Free/Shared</td><td>F1, D1</td><td>Shared</td><td>No</td><td>No</td></tr>
+    <tr><td>Basic</td><td>B1, B2, B3</td><td>1–4 vCPU / 1.75–7 GB</td><td>Yes</td><td>No (manual)</td></tr>
+    <tr><td>Standard</td><td>S1, S2, S3</td><td>1–4 vCPU / 1.75–7 GB</td><td>Yes</td><td>Yes (10 instances)</td></tr>
+    <tr><td>Premium v3</td><td>P1v3–P3v3</td><td>2–8 vCPU / 8–32 GB</td><td>Yes</td><td>Yes (30 instances)</td></tr>
+    <tr><td>Isolated v2</td><td>I1v2–I6v2</td><td>2–32 vCPU</td><td>Yes</td><td>Yes (100 instances)</td></tr>
+  </table>
+  <div class="note">Free (F1) tier is great for learning — 60 CPU minutes/day, 1 GB RAM, but no custom domain or SLA. For production, use Standard or Premium.</div>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="webapp">
+  <div class="sec-eye">Section 02</div>
+  <h2>Azure App Service (Web Apps)</h2>
+  <p>Azure App Service is a <strong>fully managed PaaS platform</strong> for hosting web applications, REST APIs, and mobile backends. You deploy code — Azure handles OS, runtime, scaling, and patching.</p>
+  <h3>Supported Runtimes</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Languages &amp; Frameworks</h4>
+      <ul>
+        <li>.NET / .NET Core</li>
+        <li>Node.js</li>
+        <li>Python, Ruby, PHP</li>
+        <li>Java (Spring Boot, Tomcat)</li>
+        <li>Custom Docker containers</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Key Features</h4>
+      <ul>
+        <li>Built-in CI/CD (GitHub, Azure DevOps)</li>
+        <li>Deployment slots (staging → production swap)</li>
+        <li>Custom domains &amp; free SSL</li>
+        <li>Auto-scaling (Standard tier+)</li>
+        <li>WebJobs for background tasks</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Deployment Slots</h3>
+  <p>Deployment slots are live environments (staging, QA) separate from production. You can deploy to staging, test, then do a <strong>zero-downtime swap</strong> — staging becomes production instantly.</p>
+  <div class="tip">Enable "Auto Swap" to automatically swap staging to production after a successful deployment — great for CI/CD pipelines.</div>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="sql">
+  <div class="sec-eye">Section 03</div>
+  <h2>Azure SQL Database</h2>
+  <p>Azure SQL Database is a <strong>fully managed, cloud-based relational database</strong> built on Microsoft SQL Server. No server patching, no OS management — just write SQL.</p>
+  <table>
+    <tr><th>Deployment Option</th><th>Description</th><th>Use Case</th></tr>
+    <tr><td>Single Database</td><td>Isolated database with its own resources</td><td>Individual app database</td></tr>
+    <tr><td>Elastic Pool</td><td>Share resources across multiple databases</td><td>SaaS apps with variable load</td></tr>
+    <tr><td>Managed Instance</td><td>Near 100% SQL Server compatibility, in a VNet</td><td>Lift-and-shift of on-prem SQL</td></tr>
+  </table>
+  <h3>Service Tiers</h3>
+  <ul>
+    <li><strong>General Purpose:</strong> Balanced compute/storage — most workloads.</li>
+    <li><strong>Business Critical:</strong> High IOPS, in-memory OLTP, read replicas.</li>
+    <li><strong>Hyperscale:</strong> Up to 100 TB, fast backups and restores.</li>
+  </ul>
+  <div class="note">Azure SQL Database automatically takes backups — full weekly, differential daily, transaction logs every 5–12 minutes. Point-in-time restore to any moment in the last 7–35 days.</div>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="docker">
+  <div class="sec-eye">Section 04</div>
+  <h2>Containers &amp; Docker</h2>
+  <p>A container packages an application and all its dependencies (libraries, config) into a <strong>portable, lightweight image</strong>. It runs identically on any machine — developer laptop, test server, or Azure cloud.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>VM vs Container</h4>
+      <ul>
+        <li>VM: Full OS per instance (GBs of overhead)</li>
+        <li>Container: Shares host OS kernel (MBs of overhead)</li>
+        <li>VM: Minutes to start</li>
+        <li>Container: Seconds to start</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Docker Concepts</h4>
+      <ul>
+        <li><strong>Dockerfile:</strong> Recipe to build an image</li>
+        <li><strong>Image:</strong> Read-only template</li>
+        <li><strong>Container:</strong> Running instance of an image</li>
+        <li><strong>Registry:</strong> Store and share images (Docker Hub, ACR)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="code"># Sample Dockerfile for a Node.js app
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]</div>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="acr">
+  <div class="sec-eye">Section 05</div>
+  <h2>Azure Container Registry (ACR)</h2>
+  <p>ACR is Azure's <strong>private Docker registry</strong> — store, manage, and deploy your container images securely within Azure. No images are public unless you choose.</p>
+  <ul>
+    <li>Integrates with AKS, App Service, and Azure Container Instances.</li>
+    <li>Geo-replication: Replicate images to multiple regions for low-latency pulls.</li>
+    <li>ACR Tasks: Build images in the cloud without Docker installed locally.</li>
+    <li>Three SKUs: Basic, Standard, Premium (Premium supports geo-replication and private endpoints).</li>
+  </ul>
+  <div class="code">az acr build --registry myregistry --image myapp:v1 .</div>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="aks">
+  <div class="sec-eye">Section 06</div>
+  <h2>Azure Kubernetes Service (AKS)</h2>
+  <p>Kubernetes (K8s) is an open-source system for <strong>automating deployment, scaling, and management of containerized applications</strong>. AKS is Azure's managed Kubernetes — Microsoft manages the control plane (free), you manage the worker nodes.</p>
+  <h3>Key Kubernetes Concepts</h3>
+  <table>
+    <tr><th>Concept</th><th>Description</th></tr>
+    <tr><td>Pod</td><td>Smallest deployable unit — one or more containers sharing network and storage</td></tr>
+    <tr><td>Deployment</td><td>Manages a set of identical Pods; handles rolling updates and rollbacks</td></tr>
+    <tr><td>Service</td><td>Stable IP/DNS to expose Pods (ClusterIP, NodePort, LoadBalancer)</td></tr>
+    <tr><td>Node</td><td>VM that runs Pods (AKS: Azure VMs)</td></tr>
+    <tr><td>Node Pool</td><td>Group of nodes with the same VM size</td></tr>
+    <tr><td>Namespace</td><td>Logical isolation within a cluster (dev, staging, prod)</td></tr>
+  </table>
+  <div class="note">In AKS, the <strong>control plane</strong> (API server, etcd, scheduler) is fully managed by Microsoft at no cost. You only pay for the <strong>worker nodes</strong> (Azure VMs).</div>
+</div>
+
+<!-- 7 -->
+<div class="sec" id="functions">
+  <div class="sec-eye">Section 07</div>
+  <h2>Azure Functions (Serverless)</h2>
+  <p>Azure Functions lets you run <strong>small pieces of code (functions) without managing any server</strong>. You write the code; Azure handles scaling, patching, and infrastructure. You only pay for execution time.</p>
+  <ul>
+    <li>Triggers: HTTP, Timer (CRON), Blob Storage upload, Queue message, Event Hub, Service Bus.</li>
+    <li>Supported languages: C#, JavaScript, Python, Java, PowerShell, TypeScript.</li>
+    <li>Consumption plan: Scale to zero (no cost when idle); auto-scale under load.</li>
+    <li>Premium plan: Pre-warmed instances (no cold start); VNet integration.</li>
+  </ul>
+  <div class="tip">Use Azure Functions for event-driven, short-running tasks: image resizing on upload, sending notifications, processing queue messages. For long-running workflows, use Azure Logic Apps or Durable Functions.</div>
+</div>
+
+<!-- 8 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 08</div>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>Service</th><th>Type</th><th>Key Point</th></tr>
+    <tr><td>App Service Plan</td><td>Compute tier</td><td>Shared resource pool for web apps; Free → Isolated</td></tr>
+    <tr><td>Azure Web App</td><td>PaaS</td><td>Managed web hosting; deployment slots; CI/CD built-in</td></tr>
+    <tr><td>Azure SQL Database</td><td>PaaS DB</td><td>Managed SQL; auto-backups; point-in-time restore</td></tr>
+    <tr><td>Docker / Containers</td><td>Packaging</td><td>Portable, lightweight app + dependencies bundle</td></tr>
+    <tr><td>Azure Container Registry</td><td>Registry</td><td>Private Docker image registry in Azure</td></tr>
+    <tr><td>AKS</td><td>Orchestration</td><td>Managed Kubernetes; free control plane; pay for nodes</td></tr>
+    <tr><td>Azure Functions</td><td>Serverless</td><td>Event-driven code; pay per execution; scale to zero</td></tr>
+  </table>
+</div>
+
+<!-- 9 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — App Services &amp; Containers</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>App Service Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/app-service/overview">app-service/overview</a></td></tr>
+      <tr><td>App Service Plans</td><td><a href="https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans">overview-hosting-plans</a></td></tr>
+      <tr><td>Azure SQL Database Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-sql/database/sql-database-paas-overview">sql-database-paas-overview</a></td></tr>
+      <tr><td>Azure Container Registry</td><td><a href="https://learn.microsoft.com/en-us/azure/container-registry/container-registry-intro">container-registry-intro</a></td></tr>
+      <tr><td>AKS Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/aks/intro-kubernetes">aks/intro-kubernetes</a></td></tr>
+      <tr><td>Azure Functions Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview">functions-overview</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 10 — App Services &amp; Containers</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

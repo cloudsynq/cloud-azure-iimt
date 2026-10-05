@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Virtual Networks — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.toc a:hover{text-decoration:underline;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.warn{background:var(--red-l);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--s3);color:#A8D8FF;padding:16px 20px;border-radius:10px;margin:16px 0;overflow-x:auto;line-height:1.6;}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--acc-l);color:var(--acc);border-radius:4px;padding:2px 8px;margin:2px;}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.doc-sec a:hover{text-decoration:underline;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol{grid-template-columns:1fr;}.grid2{grid-template-columns:1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 05</div>
+  <h1>Azure <em>Virtual Networks</em></h1>
+  <div class="hero-sub">VNet, Subnets, IP Addressing, NSG, Azure DNS &amp; Bastion Host</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#vnet">What is a Virtual Network?</a></li>
+    <li><a href="#subnets">Subnets &amp; Address Spaces</a></li>
+    <li><a href="#ip">IP Addressing in Azure</a></li>
+    <li><a href="#dns">Azure DNS</a></li>
+    <li><a href="#nsg">Network Security Groups (NSG)</a></li>
+    <li><a href="#bastion">Azure Bastion Host</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="vnet">
+  <div class="sec-eye">Section 01</div>
+  <h2>What is a Virtual Network (VNet)?</h2>
+  <p>An Azure Virtual Network (VNet) is your own <strong>private, isolated network</strong> inside Azure — just like a traditional on-premises LAN, but in the cloud. All Azure resources (VMs, databases, etc.) that need to talk to each other must be placed inside a VNet.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>On-Premises Network</h4>
+      <ul>
+        <li>Physical routers &amp; switches</li>
+        <li>You manage all hardware</li>
+        <li>Fixed capacity</li>
+        <li>Hard to scale quickly</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Azure VNet</h4>
+      <ul>
+        <li>Software-defined networking</li>
+        <li>Azure manages infrastructure</li>
+        <li>Elastic, scale instantly</li>
+        <li>Global reach via peering</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Key VNet Properties</h3>
+  <ul>
+    <li><strong>Region-scoped:</strong> A VNet lives in one Azure region. Use VNet Peering to connect VNets across regions.</li>
+    <li><strong>Subscription-scoped:</strong> Each VNet belongs to one subscription.</li>
+    <li><strong>Address space:</strong> You define the IP range using CIDR notation (e.g., 10.0.0.0/16).</li>
+    <li><strong>Free resource:</strong> Creating a VNet itself has no cost — you pay for gateways, IPs, and traffic.</li>
+  </ul>
+  <div class="note">Every VM you create in Azure is automatically placed inside a VNet. If you don't specify one, Azure uses the Default VNet.</div>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="subnets">
+  <div class="sec-eye">Section 02</div>
+  <h2>Subnets &amp; Address Spaces</h2>
+  <p>A VNet is divided into <strong>subnets</strong> — smaller IP ranges carved out of the VNet's address space. Subnets let you logically separate resources (e.g., web tier, app tier, database tier).</p>
+  <h3>Address Space Planning</h3>
+  <table>
+    <tr><th>VNet Example</th><th>CIDR</th><th>Total IPs</th><th>Usable by Azure</th></tr>
+    <tr><td>VNet address space</td><td>10.0.0.0/16</td><td>65,536</td><td>—</td></tr>
+    <tr><td>Web subnet</td><td>10.0.1.0/24</td><td>256</td><td>251 (Azure reserves 5)</td></tr>
+    <tr><td>App subnet</td><td>10.0.2.0/24</td><td>256</td><td>251</td></tr>
+    <tr><td>DB subnet</td><td>10.0.3.0/24</td><td>256</td><td>251</td></tr>
+  </table>
+  <div class="warn"><strong>Azure reserves 5 IPs in every subnet:</strong> .0 (network), .1 (default gateway), .2 &amp; .3 (Azure DNS), .255 (broadcast). A /29 subnet only gives you 3 usable IPs.</div>
+  <h3>Subnet Rules</h3>
+  <ul>
+    <li>Subnets cannot overlap within the same VNet.</li>
+    <li>Each subnet can have its own NSG and Route Table.</li>
+    <li>Special subnets: <span class="tag">GatewaySubnet</span> (for VPN/ExpressRoute gateways), <span class="tag">AzureBastionSubnet</span> (for Bastion Host) — these need specific names.</li>
+    <li>Minimum subnet size for most services: /28 (11 usable IPs after Azure reserves).</li>
+  </ul>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="ip">
+  <div class="sec-eye">Section 03</div>
+  <h2>IP Addressing in Azure</h2>
+  <h3>Private IP Addresses</h3>
+  <p>Assigned from the subnet's address space. Used for communication <em>within</em> the VNet (or to on-premises via VPN/ExpressRoute). Never reachable from the internet directly.</p>
+  <ul>
+    <li><strong>Dynamic (default):</strong> Azure assigns an IP from the subnet. May change if the VM is stopped (deallocated).</li>
+    <li><strong>Static:</strong> You pick a specific IP. Stays the same even after reboot. Use for DNS servers, domain controllers, firewalls.</li>
+  </ul>
+  <h3>Public IP Addresses</h3>
+  <p>An optional resource that makes a VM reachable from the internet.</p>
+  <table>
+    <tr><th>SKU</th><th>Assignment</th><th>Zone support</th><th>Use case</th></tr>
+    <tr><td>Basic</td><td>Dynamic or Static</td><td>No</td><td>Dev/test, legacy</td></tr>
+    <tr><td>Standard</td><td>Static only</td><td>Yes (Zone-redundant)</td><td>Production, Load Balancer</td></tr>
+  </table>
+  <div class="note">Standard SKU Public IP is recommended for production. Basic SKU is being retired.</div>
+  <h3>Reserved IP Ranges (RFC 1918 — Private)</h3>
+  <ul>
+    <li>10.0.0.0 – 10.255.255.255 (/8)</li>
+    <li>172.16.0.0 – 172.31.255.255 (/12)</li>
+    <li>192.168.0.0 – 192.168.255.255 (/16)</li>
+  </ul>
+  <div class="tip">Use non-overlapping address spaces across your VNets from the start — once resources are deployed, changing the VNet address space is complex.</div>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="dns">
+  <div class="sec-eye">Section 04</div>
+  <h2>Azure DNS</h2>
+  <p>Azure DNS lets you host your DNS domains in Azure and resolves names to IP addresses. There are two types:</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>Public DNS Zones</h4>
+      <ul>
+        <li>For internet-facing domains (e.g., cloudsynq.shop)</li>
+        <li>Accessible from anywhere on the internet</li>
+        <li>You delegate your domain registrar's NS records to Azure</li>
+        <li>Records: A, AAAA, CNAME, MX, TXT, NS, SOA</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Private DNS Zones</h4>
+      <ul>
+        <li>For internal name resolution within a VNet</li>
+        <li>Not accessible from the internet</li>
+        <li>E.g., vm1.internal.cloudsynq.local</li>
+        <li>Link to VNet with "auto-registration" to auto-add VM records</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Default Azure DNS</h3>
+  <p>By default, Azure provides DNS resolution at <strong>168.63.129.16</strong> — VMs can resolve each other by hostname within the same VNet automatically (using the VM's computer name).</p>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="nsg">
+  <div class="sec-eye">Section 05</div>
+  <h2>Network Security Groups (NSG)</h2>
+  <p>An NSG is a <strong>virtual firewall</strong> that filters network traffic to and from Azure resources. It contains <em>security rules</em> — each rule specifies allow or deny based on source, destination, port, and protocol.</p>
+  <h3>NSG Association</h3>
+  <ul>
+    <li><strong>Subnet-level:</strong> Applies to all resources in the subnet (broader control).</li>
+    <li><strong>NIC-level:</strong> Applies to a specific VM's network interface (fine-grained control).</li>
+    <li>Both can be applied simultaneously — both must allow traffic for it to pass.</li>
+  </ul>
+  <h3>Rule Properties</h3>
+  <table>
+    <tr><th>Property</th><th>Description</th><th>Example</th></tr>
+    <tr><td>Priority</td><td>100–4096, lower = processed first</td><td>100</td></tr>
+    <tr><td>Source</td><td>IP, CIDR, Service Tag, or Application Security Group</td><td>0.0.0.0/0 (any)</td></tr>
+    <tr><td>Destination</td><td>IP, CIDR, Service Tag, or ASG</td><td>10.0.1.0/24</td></tr>
+    <tr><td>Protocol</td><td>TCP, UDP, ICMP, Any</td><td>TCP</td></tr>
+    <tr><td>Port</td><td>Single, range, or *</td><td>80, 443, 3389</td></tr>
+    <tr><td>Action</td><td>Allow or Deny</td><td>Allow</td></tr>
+  </table>
+  <h3>Default Rules (cannot be deleted)</h3>
+  <table>
+    <tr><th>Rule</th><th>Priority</th><th>Direction</th><th>Action</th></tr>
+    <tr><td>AllowVnetInBound</td><td>65000</td><td>Inbound</td><td>Allow (VNet to VNet)</td></tr>
+    <tr><td>AllowAzureLoadBalancerInBound</td><td>65001</td><td>Inbound</td><td>Allow (health probes)</td></tr>
+    <tr><td>DenyAllInBound</td><td>65500</td><td>Inbound</td><td>Deny ALL</td></tr>
+    <tr><td>AllowVnetOutBound</td><td>65000</td><td>Outbound</td><td>Allow (VNet to VNet)</td></tr>
+    <tr><td>AllowInternetOutBound</td><td>65001</td><td>Outbound</td><td>Allow (to internet)</td></tr>
+    <tr><td>DenyAllOutBound</td><td>65500</td><td>Outbound</td><td>Deny ALL</td></tr>
+  </table>
+  <div class="note"><strong>NSG vs Azure Firewall:</strong> NSG is free, stateful (allows return traffic automatically), and works at L4 (port/protocol). Azure Firewall is a paid managed service with L7 filtering, FQDN rules, and threat intelligence.</div>
+  <h3>Service Tags</h3>
+  <p>Instead of memorizing Microsoft's IP ranges, use service tags like <span class="tag">Internet</span> <span class="tag">VirtualNetwork</span> <span class="tag">AzureLoadBalancer</span> <span class="tag">Storage</span> <span class="tag">Sql</span> — Azure keeps them updated automatically.</p>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="bastion">
+  <div class="sec-eye">Section 06</div>
+  <h2>Azure Bastion Host</h2>
+  <p>Azure Bastion provides <strong>secure, browser-based RDP/SSH</strong> access to your VMs <em>without exposing them to the public internet</em>. You connect through the Azure Portal — no public IP needed on the VM.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>Without Bastion (old way)</h4>
+      <ul>
+        <li>VM needs a Public IP</li>
+        <li>RDP port 3389 exposed to internet</li>
+        <li>Vulnerable to brute-force attacks</li>
+        <li>Requires VPN client for private access</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>With Azure Bastion</h4>
+      <ul>
+        <li>VM has no public IP needed</li>
+        <li>RDP/SSH over HTTPS (port 443)</li>
+        <li>Connection via Azure Portal browser</li>
+        <li>Full audit log in Azure Monitor</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Setup Requirements</h3>
+  <ul>
+    <li>Create a dedicated subnet named exactly <span class="tag">AzureBastionSubnet</span> (minimum /26 size).</li>
+    <li>Deploy a Standard Public IP to the Bastion resource.</li>
+    <li>Bastion SKUs: Basic (RDP/SSH only) vs Standard (file transfer, tunneling, native client).</li>
+  </ul>
+  <div class="tip">Azure Bastion is billed per hour. For dev/test environments, you can delete it when not in use and redeploy quickly.</div>
+</div>
+
+<!-- 7 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 07</div>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Point</th></tr>
+    <tr><td>VNet</td><td>Isolated private network in Azure — region-scoped, CIDR-based</td></tr>
+    <tr><td>Subnet</td><td>Subdivisions of a VNet; Azure reserves 5 IPs per subnet</td></tr>
+    <tr><td>Private IP</td><td>Dynamic (changes on deallocation) or Static (fixed)</td></tr>
+    <tr><td>Public IP</td><td>Makes resource internet-reachable; use Standard SKU for production</td></tr>
+    <tr><td>Azure DNS</td><td>Public zones (internet) + Private zones (internal VNet resolution)</td></tr>
+    <tr><td>NSG</td><td>Stateful virtual firewall; rules have priority (lower = first); service tags available</td></tr>
+    <tr><td>Azure Bastion</td><td>Browser-based RDP/SSH without public IP on VM; needs AzureBastionSubnet (/26+)</td></tr>
+  </table>
+</div>
+
+<!-- 8 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — Virtual Networks</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>Virtual Network Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview">virtual-networks-overview</a></td></tr>
+      <tr><td>Create a Virtual Network</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/quick-create-portal">quick-create-portal</a></td></tr>
+      <tr><td>Subnets</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-manage-subnet">virtual-network-manage-subnet</a></td></tr>
+      <tr><td>Public IP Addresses</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses">ip-services/public-ip-addresses</a></td></tr>
+      <tr><td>Network Security Groups</td><td><a href="https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview">network-security-groups-overview</a></td></tr>
+      <tr><td>Azure DNS Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/dns/dns-overview">dns/dns-overview</a></td></tr>
+      <tr><td>Private DNS Zones</td><td><a href="https://learn.microsoft.com/en-us/azure/dns/private-dns-overview">private-dns-overview</a></td></tr>
+      <tr><td>Azure Bastion</td><td><a href="https://learn.microsoft.com/en-us/azure/bastion/bastion-overview">bastion/bastion-overview</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 05 — Virtual Networks</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Monitoring — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--org:#C55A11;--org-l:#FFF4CE;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.info{background:var(--org-l);border-left:3px solid var(--org);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.code{font-family:'JetBrains Mono',monospace;font-size:13px;background:var(--s3);color:#A8D8FF;padding:16px 20px;border-radius:10px;margin:16px 0;overflow-x:auto;line-height:1.6;}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--acc-l);color:var(--acc);border-radius:4px;padding:2px 8px;margin:2px;}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol,.grid2{grid-template-columns:1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 08</div>
+  <h1>Azure <em>Monitoring</em></h1>
+  <div class="hero-sub">Azure Monitor · Log Analytics · Alerts · Application Insights · Network Watcher</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#overview">Azure Monitor Overview</a></li>
+    <li><a href="#metrics">Metrics</a></li>
+    <li><a href="#logs">Logs &amp; Log Analytics</a></li>
+    <li><a href="#alerts">Alerts &amp; Action Groups</a></li>
+    <li><a href="#appinsights">Application Insights</a></li>
+    <li><a href="#netwatcher">Network Watcher</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="overview">
+  <div class="sec-eye">Section 01</div>
+  <h2>Azure Monitor Overview</h2>
+  <p>Azure Monitor is the <strong>central monitoring platform</strong> for Azure. It collects, analyzes, and acts on telemetry data from Azure resources, on-premises infrastructure, and custom applications.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>What Azure Monitor Collects</h4>
+      <ul>
+        <li><strong>Metrics:</strong> Numeric time-series data (CPU%, disk IOPS, request rate)</li>
+        <li><strong>Logs:</strong> Structured text records (activity logs, resource logs, custom logs)</li>
+        <li><strong>Traces:</strong> Application distributed tracing (Application Insights)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>What You Can Do</h4>
+      <ul>
+        <li>Visualize dashboards &amp; workbooks</li>
+        <li>Alert on thresholds (email, SMS, webhook)</li>
+        <li>Auto-scale based on metrics</li>
+        <li>Diagnose and troubleshoot issues</li>
+      </ul>
+    </div>
+  </div>
+  <p>Think of Azure Monitor as an <strong>umbrella service</strong> — it brings together Metrics, Log Analytics, Alerts, Application Insights, and Network Watcher under one roof.</p>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="metrics">
+  <div class="sec-eye">Section 02</div>
+  <h2>Metrics</h2>
+  <p>Metrics are <strong>numeric values collected at regular intervals</strong> (usually every 1 minute). Every Azure resource automatically emits platform metrics — no configuration needed.</p>
+  <h3>Common VM Metrics</h3>
+  <table>
+    <tr><th>Metric</th><th>Description</th><th>Unit</th></tr>
+    <tr><td>Percentage CPU</td><td>CPU utilization of the VM</td><td>%</td></tr>
+    <tr><td>Network In/Out</td><td>Bytes received/sent on the NIC</td><td>Bytes</td></tr>
+    <tr><td>Disk Read/Write Bytes</td><td>Bytes read/written to disk</td><td>Bytes/sec</td></tr>
+    <tr><td>Available Memory Bytes</td><td>Free RAM (requires Azure Monitor Agent)</td><td>Bytes</td></tr>
+    <tr><td>OS Disk IOPS</td><td>Disk operations per second</td><td>CountPerSecond</td></tr>
+  </table>
+  <h3>Metrics Explorer</h3>
+  <p>In the Azure Portal, go to any resource → <strong>Metrics</strong> to visualize metrics in charts. You can pin charts to Azure Dashboards for a custom monitoring view.</p>
+  <div class="note">Platform metrics are retained for <strong>93 days</strong>. For longer retention, export to a Log Analytics Workspace or Storage Account.</div>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="logs">
+  <div class="sec-eye">Section 03</div>
+  <h2>Logs &amp; Log Analytics</h2>
+  <p>Logs contain <strong>structured records of events</strong> — more detail than metrics. Azure Monitor Logs stores them in a <strong>Log Analytics Workspace</strong> and uses the <strong>Kusto Query Language (KQL)</strong> to query them.</p>
+  <h3>Types of Logs</h3>
+  <table>
+    <tr><th>Log Type</th><th>What it captures</th><th>Where to enable</th></tr>
+    <tr><td>Activity Log</td><td>Subscription-level operations (who did what, when)</td><td>Automatic — 90 day retention</td></tr>
+    <tr><td>Resource Logs (Diagnostic)</td><td>Resource-specific operations (VM start/stop, NSG flow)</td><td>Diagnostic Settings on each resource</td></tr>
+    <tr><td>Azure AD Logs</td><td>Sign-ins, audit events, risky sign-ins</td><td>Entra ID → Diagnostic Settings</td></tr>
+    <tr><td>Guest OS Logs</td><td>Windows Event Log, Linux syslog from inside VM</td><td>Azure Monitor Agent (AMA)</td></tr>
+  </table>
+  <h3>KQL Sample Queries</h3>
+  <div class="code">// Find all failed sign-ins in last 24 hours
+SigninLogs
+| where TimeGenerated > ago(24h)
+| where ResultType != "0"
+| project TimeGenerated, UserPrincipalName, IPAddress, ResultDescription
+
+// Top 10 VMs by CPU
+Perf
+| where ObjectName == "Processor"
+| summarize avg(CounterValue) by Computer
+| top 10 by avg_CounterValue desc</div>
+  <div class="tip">Log Analytics Workspace is a central repository. You can connect multiple Azure subscriptions and on-premises servers to the same workspace for unified querying.</div>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="alerts">
+  <div class="sec-eye">Section 04</div>
+  <h2>Alerts &amp; Action Groups</h2>
+  <p>Azure Alerts automatically <strong>notify you or trigger an action</strong> when a metric or log condition is met.</p>
+  <h3>Alert Components</h3>
+  <ul>
+    <li><strong>Alert Rule:</strong> Defines the condition (e.g., CPU% &gt; 90 for 5 minutes).</li>
+    <li><strong>Action Group:</strong> Defines what happens when the alert fires (email, SMS, webhook, Azure Function, Logic App, ITSM).</li>
+    <li><strong>Alert State:</strong> New → Acknowledged → Resolved.</li>
+  </ul>
+  <h3>Alert Signal Types</h3>
+  <table>
+    <tr><th>Signal Type</th><th>Example</th></tr>
+    <tr><td>Metric Alert</td><td>CPU% &gt; 80% for 5 minutes on VM-Prod</td></tr>
+    <tr><td>Log Alert (KQL)</td><td>Count of failed logins &gt; 10 in 1 hour</td></tr>
+    <tr><td>Activity Log Alert</td><td>Alert when any VM in subscription is deleted</td></tr>
+    <tr><td>Smart Detection</td><td>Application Insights automatically detects anomalies</td></tr>
+  </table>
+  <div class="info">Action Groups are reusable — one Action Group can be used by multiple alert rules. Create one "On-Call Team" group and reuse it everywhere.</div>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="appinsights">
+  <div class="sec-eye">Section 05</div>
+  <h2>Application Insights</h2>
+  <p>Application Insights is an <strong>APM (Application Performance Monitoring)</strong> service — it monitors live web applications, tracks exceptions, measures response times, and provides distributed tracing.</p>
+  <ul>
+    <li>SDK-based: Add a small SDK to your app code (Node.js, .NET, Java, Python, etc.).</li>
+    <li>Tracks: Page views, HTTP requests, dependencies (SQL, Redis, API calls), exceptions, custom events.</li>
+    <li>Live Metrics: Real-time stream of requests/failures as they happen.</li>
+    <li>Application Map: Visual dependency graph showing how your microservices connect.</li>
+    <li>Smart Detection: Auto-detects anomalies (slow response, failure rate spike).</li>
+  </ul>
+  <div class="note">Application Insights stores its data in a Log Analytics Workspace. You can query it with KQL alongside other logs.</div>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="netwatcher">
+  <div class="sec-eye">Section 06</div>
+  <h2>Network Watcher</h2>
+  <p>Network Watcher provides <strong>network monitoring, diagnostic, and visualization tools</strong> for Azure virtual networks.</p>
+  <h3>Key Tools</h3>
+  <table>
+    <tr><th>Tool</th><th>Purpose</th></tr>
+    <tr><td>IP Flow Verify</td><td>Check if traffic is allowed/denied by NSG rules between two IPs</td></tr>
+    <tr><td>Next Hop</td><td>Find out where traffic goes next from a VM (useful for route debugging)</td></tr>
+    <tr><td>Connection Monitor</td><td>Continuous connectivity test between endpoints (latency, packet loss)</td></tr>
+    <tr><td>NSG Flow Logs</td><td>Log all traffic allowed/denied by NSGs — stored in Storage Account</td></tr>
+    <tr><td>Packet Capture</td><td>Capture network packets to/from a VM for deep analysis</td></tr>
+    <tr><td>VPN Troubleshoot</td><td>Diagnose VPN Gateway connection issues</td></tr>
+  </table>
+  <div class="tip">Enable NSG Flow Logs for all production NSGs. They feed into Traffic Analytics for a visual map of your network flows and threat detection.</div>
+</div>
+
+<!-- 7 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 07</div>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>Service</th><th>What it monitors</th><th>Key feature</th></tr>
+    <tr><td>Azure Monitor (Metrics)</td><td>CPU, disk, network of Azure resources</td><td>Auto-collected, 93-day retention, Metrics Explorer</td></tr>
+    <tr><td>Log Analytics</td><td>All Azure logs (activity, diagnostic, guest OS)</td><td>KQL queries, centralized workspace</td></tr>
+    <tr><td>Azure Alerts</td><td>Metrics, Logs, Activity Log conditions</td><td>Action Groups (email/SMS/webhook), reusable</td></tr>
+    <tr><td>Application Insights</td><td>Web app performance (requests, exceptions, traces)</td><td>SDK-based APM, live metrics, app map</td></tr>
+    <tr><td>Network Watcher</td><td>Network connectivity and NSG traffic</td><td>IP Flow Verify, NSG Flow Logs, Packet Capture</td></tr>
+  </table>
+</div>
+
+<!-- 8 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — Azure Monitoring</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>Azure Monitor Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/overview">azure-monitor/overview</a></td></tr>
+      <tr><td>Metrics in Azure Monitor</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/data-platform-metrics">essentials/data-platform-metrics</a></td></tr>
+      <tr><td>Log Analytics Workspace</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-workspace-overview">logs/log-analytics-workspace-overview</a></td></tr>
+      <tr><td>KQL Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/data-explorer/kusto/query/">kusto/query/</a></td></tr>
+      <tr><td>Azure Alerts</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview">alerts/alerts-overview</a></td></tr>
+      <tr><td>Application Insights</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview">app/app-insights-overview</a></td></tr>
+      <tr><td>Network Watcher Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview">network-watcher-overview</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 08 — Azure Monitoring</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Protection & Backup — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--org:#C55A11;--org-l:#FFF4CE;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.warn{background:var(--red-l);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.rep-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0;}
+.rep-card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:14px;text-align:center;}
+.rep-card .rep-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--acc);margin-bottom:6px;}
+.rep-card p{font-size:12.5px;color:var(--muted);margin:0;}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol,.grid2,.rep-grid{grid-template-columns:1fr 1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 09</div>
+  <h1>Data Protection <em>&amp; Backup</em></h1>
+  <div class="hero-sub">Data Replication · Recovery Services Vault · Azure Backup · MARS Agent · Site Recovery</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#replication">Data Replication Types</a></li>
+    <li><a href="#vault">Recovery Services Vault</a></li>
+    <li><a href="#backup">Azure Backup</a></li>
+    <li><a href="#vmbkp">VM Backup &amp; Restore</a></li>
+    <li><a href="#mars">On-Premises: MARS Agent</a></li>
+    <li><a href="#asr">Azure Site Recovery</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="replication">
+  <div class="sec-eye">Section 01</div>
+  <h2>Data Replication Types</h2>
+  <p>Azure Storage replicates your data to protect against hardware failures. The replication option you choose determines <strong>how many copies</strong> exist and <strong>where</strong> they are stored.</p>
+  <div class="rep-grid">
+    <div class="rep-card">
+      <div class="rep-name">LRS</div>
+      <p>Locally Redundant Storage — 3 copies in 1 datacenter</p>
+    </div>
+    <div class="rep-card">
+      <div class="rep-name">ZRS</div>
+      <p>Zone Redundant — 3 copies across 3 Availability Zones in 1 region</p>
+    </div>
+    <div class="rep-card">
+      <div class="rep-name">GRS</div>
+      <p>Geo-Redundant — 6 copies: 3 primary region + 3 secondary region</p>
+    </div>
+    <div class="rep-card">
+      <div class="rep-name">RA-GRS</div>
+      <p>Read-Access GRS — GRS + read access to secondary region</p>
+    </div>
+  </div>
+  <table>
+    <tr><th>Type</th><th>Copies</th><th>Regions</th><th>Availability SLA</th><th>Cost</th></tr>
+    <tr><td>LRS</td><td>3</td><td>1 (single DC)</td><td>99.9%</td><td>Lowest</td></tr>
+    <tr><td>ZRS</td><td>3</td><td>1 (3 zones)</td><td>99.99%</td><td>Low-Medium</td></tr>
+    <tr><td>GRS</td><td>6</td><td>2 (primary + secondary)</td><td>99.99%</td><td>Medium</td></tr>
+    <tr><td>RA-GRS</td><td>6</td><td>2 + read on secondary</td><td>99.99% (read: 99.9%)</td><td>Higher</td></tr>
+    <tr><td>GZRS</td><td>6</td><td>2 (ZRS primary + LRS secondary)</td><td>99.99999%</td><td>Highest</td></tr>
+  </table>
+  <div class="note">For production workloads, use <strong>ZRS</strong> (single region, zone resilient) or <strong>GRS/GZRS</strong> (multi-region DR). LRS is only for dev/test or data that can be recreated.</div>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="vault">
+  <div class="sec-eye">Section 02</div>
+  <h2>Recovery Services Vault</h2>
+  <p>A Recovery Services Vault is an <strong>Azure storage container</strong> that holds backup data and recovery points for Azure VMs, SQL databases, Azure Files, and on-premises servers.</p>
+  <ul>
+    <li>Must be in the <strong>same region</strong> as the resources being backed up.</li>
+    <li>Storage replication: LRS (default) or GRS (recommended for production DR).</li>
+    <li>Soft Delete: Protects backup data for 14 days after deletion (enabled by default).</li>
+    <li>One vault can protect resources from multiple subscriptions (with proper permissions).</li>
+  </ul>
+  <div class="tip">Create a separate vault per region, per business unit. Mixing all backups in one vault makes role-based access harder to manage.</div>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="backup">
+  <div class="sec-eye">Section 03</div>
+  <h2>Azure Backup</h2>
+  <p>Azure Backup is Microsoft's <strong>cloud-based backup service</strong>. It protects on-premises machines, Azure VMs, SQL databases, SAP HANA, Azure Files, and more — all managed through Recovery Services Vault.</p>
+  <h3>Backup Policy</h3>
+  <p>A Backup Policy defines <strong>when backups run</strong> and <strong>how long recovery points are kept</strong>.</p>
+  <table>
+    <tr><th>Policy Setting</th><th>Options</th><th>Example</th></tr>
+    <tr><td>Backup frequency</td><td>Daily, Weekly, Multiple times/day</td><td>Daily at 2:00 AM</td></tr>
+    <tr><td>Daily retention</td><td>7–9999 days</td><td>30 days</td></tr>
+    <tr><td>Weekly retention</td><td>Optional</td><td>Keep Sunday backups for 12 weeks</td></tr>
+    <tr><td>Monthly retention</td><td>Optional</td><td>Keep first-of-month for 12 months</td></tr>
+    <tr><td>Yearly retention</td><td>Optional</td><td>Keep Jan 1st backup for 5 years</td></tr>
+  </table>
+  <div class="warn">Azure Backup uses the <strong>GRS</strong> replication by default for vault storage — backups are replicated to a paired region automatically.</div>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="vmbkp">
+  <div class="sec-eye">Section 04</div>
+  <h2>VM Backup &amp; Restore</h2>
+  <p>Azure Backup can back up the entire Azure VM — all OS disks and data disks — as <strong>application-consistent snapshots</strong>.</p>
+  <h3>How VM Backup Works</h3>
+  <ol>
+    <li>Backup job triggers at the scheduled time.</li>
+    <li>Azure Backup Extension on the VM takes an application-consistent snapshot (using VSS on Windows).</li>
+    <li>Snapshot is transferred incrementally to the Recovery Services Vault.</li>
+    <li>Recovery point is created (Full, Incremental, or Differential).</li>
+  </ol>
+  <h3>Restore Options</h3>
+  <table>
+    <tr><th>Restore Type</th><th>What it does</th><th>Use case</th></tr>
+    <tr><td>Create new VM</td><td>Restore to a brand new VM</td><td>Full DR recovery</td></tr>
+    <tr><td>Restore disks</td><td>Restore managed disks, then attach to any VM</td><td>Flexible recovery</td></tr>
+    <tr><td>Replace existing disk</td><td>Swap the OS/data disk on the existing VM</td><td>Fix corrupted disk</td></tr>
+    <tr><td>File Recovery</td><td>Mount recovery point as a drive, browse and copy individual files</td><td>Recover single files</td></tr>
+  </table>
+  <div class="note">The first backup is a full backup; subsequent backups are incremental (only changed blocks are transferred). This saves cost and time.</div>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="mars">
+  <div class="sec-eye">Section 05</div>
+  <h2>On-Premises Backup: MARS Agent</h2>
+  <p>The <strong>Microsoft Azure Recovery Services (MARS) Agent</strong> is a small software agent installed on on-premises Windows servers or VMs. It backs up files, folders, and system state directly to a Recovery Services Vault — over the internet.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>MARS Agent Limitations</h4>
+      <ul>
+        <li>Windows only (no Linux)</li>
+        <li>Files, folders, and system state only (not full VM image)</li>
+        <li>No application-consistent backup for SQL/Exchange</li>
+        <li>Requires internet or ExpressRoute to Azure</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>MARS Agent Advantages</h4>
+      <ul>
+        <li>No additional infrastructure needed</li>
+        <li>Simple setup (download, register, schedule)</li>
+        <li>Up to 3 backups per day</li>
+        <li>Supports compression and encryption</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Other On-Premises Backup Options</h3>
+  <ul>
+    <li><strong>Azure Backup Server (MABS):</strong> Windows server app that backs up Hyper-V VMs, SQL Server, SharePoint, Exchange — application-consistent. Free (no separate license).</li>
+    <li><strong>DPM (Data Protection Manager):</strong> Microsoft System Center product — same capabilities as MABS but requires System Center license.</li>
+  </ul>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="asr">
+  <div class="sec-eye">Section 06</div>
+  <h2>Azure Site Recovery (ASR)</h2>
+  <p>Azure Site Recovery provides <strong>disaster recovery (DR)</strong> by continuously replicating VMs to a secondary Azure region. If the primary region fails, you can failover in minutes.</p>
+  <ul>
+    <li>Replicates Azure VMs, on-premises Hyper-V VMs, VMware VMs.</li>
+    <li>RPO (Recovery Point Objective): as low as 30 seconds.</li>
+    <li>RTO (Recovery Time Objective): typically under 2 hours.</li>
+    <li>Test failover: Run a DR drill without impacting production.</li>
+    <li>Failback: After the primary region recovers, replicate back and failback.</li>
+  </ul>
+  <div class="tip">Use ASR for tier-1 applications that cannot tolerate datacenter outages. For less critical apps, Azure Backup (restore to new VM) is more cost-effective.</div>
+</div>
+
+<!-- 7 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 07</div>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Point</th></tr>
+    <tr><td>LRS/ZRS/GRS</td><td>Storage replication: 3 copies local → 3 zones → 6 copies cross-region</td></tr>
+    <tr><td>Recovery Services Vault</td><td>Central container for backups; must be same region; supports soft delete</td></tr>
+    <tr><td>Azure Backup</td><td>Policy-based cloud backup; daily/weekly/monthly retention; incremental after first full</td></tr>
+    <tr><td>VM Backup</td><td>Application-consistent snapshots; 4 restore options including file-level recovery</td></tr>
+    <tr><td>MARS Agent</td><td>On-premises Windows files/folders → Azure Vault; lightweight agent</td></tr>
+    <tr><td>Azure Site Recovery</td><td>Continuous VM replication for DR; failover + failback; RPO 30 seconds</td></tr>
+  </table>
+</div>
+
+<!-- 8 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — Data Protection</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>Azure Storage Redundancy</td><td><a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy">storage-redundancy</a></td></tr>
+      <tr><td>Recovery Services Vault</td><td><a href="https://learn.microsoft.com/en-us/azure/backup/backup-azure-recovery-services-vault-overview">backup-azure-recovery-services-vault-overview</a></td></tr>
+      <tr><td>Azure Backup Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/backup/backup-overview">backup-overview</a></td></tr>
+      <tr><td>Back Up Azure VM</td><td><a href="https://learn.microsoft.com/en-us/azure/backup/quick-backup-vm-portal">quick-backup-vm-portal</a></td></tr>
+      <tr><td>MARS Agent Backup</td><td><a href="https://learn.microsoft.com/en-us/azure/backup/install-mars-agent">install-mars-agent</a></td></tr>
+      <tr><td>Azure Site Recovery Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview">site-recovery-overview</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 09 — Data Protection &amp; Backup</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

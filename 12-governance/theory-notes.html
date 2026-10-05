@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Governance — Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{--bg:#F0F6FF;--surface:#FFFFFF;--s2:#EBF3FF;--s3:#0A2540;--fg:#0D1E34;--muted:#4A6080;--acc:#0078D4;--acc-l:#D8EEFF;--grn:#107C10;--grn-l:#DFF6DD;--red:#C50F1F;--red-l:#FDE7E9;--org:#C55A11;--org-l:#FFF4CE;--bdr:#D0E3F5;--bdr-l:#E8F2FF;--shadow:0 2px 12px rgba(0,120,212,.09);}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}}
+:root[data-theme="dark"]{--bg:#07111F;--surface:#0C1D33;--s2:#112038;--s3:#050F1A;--fg:#D0E6F8;--muted:#7090B0;--acc:#4BA3E8;--acc-l:#0A2040;--grn:#6CCB5F;--grn-l:#0A2510;--red:#F47474;--red-l:#2A0A0A;--org:#F7A850;--org-l:#251500;--bdr:#1A3050;--bdr-l:#102030;--shadow:0 2px 12px rgba(0,0,0,.5);color-scheme:dark;}
+*,*::before,*::after{box-sizing:border-box;margin:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:15px;line-height:1.75;padding-inline:16px;}
+.page-wrap{max-width:900px;margin:0 auto;padding-block:36px 80px;}
+.hero{background:linear-gradient(135deg,var(--s3) 0%,#003A75 100%);border-radius:18px;padding:40px;margin-bottom:40px;position:relative;overflow:hidden;}
+.hero::after{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%);pointer-events:none;}
+.breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-family:'JetBrains Mono',monospace;}
+.hero h1{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:800;color:#FFF;line-height:1.15;margin-bottom:8px;}
+.hero h1 em{color:#60B8FF;font-style:normal;}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.6);}
+.toc{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:22px 28px;margin-bottom:32px;box-shadow:var(--shadow);}
+.toc-title{font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:12px;}
+.toc ol{padding-left:20px;color:var(--muted);font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:2px 24px;}
+.toc a{color:var(--acc);text-decoration:none;}
+.sec{background:var(--surface);border:1px solid var(--bdr);border-radius:14px;padding:28px 32px;margin-bottom:24px;box-shadow:var(--shadow);}
+.sec-eye{font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px;}
+.sec h2{font-family:'Outfit',sans-serif;font-size:1.35rem;font-weight:700;color:var(--fg);margin-bottom:16px;}
+.sec h3{font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:700;color:var(--fg);margin:20px 0 10px;}
+p{margin-bottom:12px;}
+ul,ol{padding-left:22px;margin-bottom:12px;}
+li{margin-bottom:4px;}
+.note{background:var(--acc-l);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.tip{background:var(--grn-l);border-left:3px solid var(--grn);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+.info{background:var(--org-l);border-left:3px solid var(--org);border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0;font-size:14px;}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;}
+th{background:var(--s3);color:#FFF;padding:10px 14px;text-align:left;font-family:'Outfit',sans-serif;font-weight:600;}
+td{padding:9px 14px;border-bottom:1px solid var(--bdr-l);}
+tr:last-child td{border-bottom:none;}
+tr:nth-child(even) td{background:var(--s2);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0;}
+.card{background:var(--s2);border:1px solid var(--bdr);border-radius:10px;padding:16px;}
+.card h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;color:var(--acc);margin-bottom:8px;}
+.card p,.card li{font-size:13.5px;}
+.hier{display:flex;flex-direction:column;gap:8px;margin:16px 0;}
+.hier-row{display:flex;align-items:center;gap:12px;}
+.hier-box{background:var(--acc);color:#FFF;border-radius:8px;padding:8px 16px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.85rem;white-space:nowrap;}
+.hier-box.l2{background:#005A9E;}
+.hier-box.l3{background:var(--s3);}
+.hier-box.l4{background:#1A3A5C;}
+.hier-arrow{color:var(--muted);font-size:18px;}
+.hier-desc{font-size:13px;color:var(--muted);}
+.doc-sec{background:rgba(0,120,212,.06);border:1.5px solid rgba(0,120,212,.2);border-radius:14px;padding:24px 28px;margin-top:8px;}
+.doc-sec h2{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:14px;}
+.doc-sec table th{background:#003A75;}
+.doc-sec a{color:var(--acc);text-decoration:none;}
+.footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid var(--bdr);font-size:13px;color:var(--muted);}
+@media(max-width:620px){.toc ol,.grid2{grid-template-columns:1fr;}.hero{padding:26px 20px;}.hero h1{font-size:1.5rem;}.sec{padding:20px 18px;}}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<div class="hero">
+  <div class="breadcrumb">IIMT University · Azure AZ-104 · Module 12</div>
+  <h1>Azure <em>Governance</em></h1>
+  <div class="hero-sub">Subscriptions · Management Groups · RBAC · Azure Policy · Cost Management · Blueprints</div>
+</div>
+
+<div class="toc">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#hierarchy">Azure Hierarchy</a></li>
+    <li><a href="#subs">Subscriptions &amp; Accounts</a></li>
+    <li><a href="#mgmt">Management Groups</a></li>
+    <li><a href="#rbac">RBAC — Role-Based Access Control</a></li>
+    <li><a href="#policy">Azure Policy</a></li>
+    <li><a href="#cost">Cost Management</a></li>
+    <li><a href="#tags">Resource Tags</a></li>
+    <li><a href="#summary">Summary</a></li>
+    <li><a href="#docs">Official Documentation</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<div class="sec" id="hierarchy">
+  <div class="sec-eye">Section 01</div>
+  <h2>Azure Governance Hierarchy</h2>
+  <p>Azure resources are organized in a <strong>four-level hierarchy</strong>. Policies and RBAC assignments at a higher level are inherited by all children below.</p>
+  <div class="hier">
+    <div class="hier-row"><div class="hier-box">Management Group</div><div class="hier-desc">Groups subscriptions; apply policy across the entire organization</div></div>
+    <div class="hier-row"><div class="hier-arrow">↳</div><div class="hier-box l2">Subscription</div><div class="hier-desc">Billing unit; trust boundary; quota limits per subscription</div></div>
+    <div class="hier-row"><div class="hier-arrow">&nbsp;&nbsp;&nbsp;↳</div><div class="hier-box l3">Resource Group</div><div class="hier-desc">Logical container for related resources; lifecycle management</div></div>
+    <div class="hier-row"><div class="hier-arrow">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳</div><div class="hier-box l4">Resource</div><div class="hier-desc">Individual service: VM, Storage Account, VNet, etc.</div></div>
+  </div>
+  <p>Governance controls (RBAC, Azure Policy, Locks, Tags) can be applied at any level and flow down through inheritance.</p>
+</div>
+
+<!-- 2 -->
+<div class="sec" id="subs">
+  <div class="sec-eye">Section 02</div>
+  <h2>Subscriptions &amp; Accounts</h2>
+  <p>A <strong>subscription</strong> is the primary billing and deployment boundary in Azure. Every resource you create belongs to a subscription.</p>
+  <ul>
+    <li><strong>Account:</strong> The identity that signs up and owns subscriptions (Entra ID account or Microsoft Account).</li>
+    <li><strong>Subscription types:</strong> Free Trial, Pay-As-You-Go, Enterprise Agreement (EA), CSP (Cloud Solution Provider), Dev/Test.</li>
+    <li><strong>Quota limits:</strong> Each subscription has limits (e.g., 25,000 VMs/region). You can request increases via Support.</li>
+    <li><strong>Trust:</strong> A subscription trusts exactly ONE Entra ID tenant for authentication.</li>
+  </ul>
+  <div class="note">Subscriptions are also cost boundaries — each gets its own bill. Enterprises use separate subscriptions per team, environment (prod/dev), or geographic region for cost isolation.</div>
+</div>
+
+<!-- 3 -->
+<div class="sec" id="mgmt">
+  <div class="sec-eye">Section 03</div>
+  <h2>Management Groups</h2>
+  <p>Management Groups are containers that help you <strong>organize multiple subscriptions</strong> and apply governance at scale. Policies assigned to a management group automatically apply to all subscriptions within it.</p>
+  <ul>
+    <li>The top-level group is the <strong>Root Management Group</strong> — all subscriptions belong to it.</li>
+    <li>Up to <strong>6 levels</strong> of nesting (excluding root and subscription levels).</li>
+    <li>One subscription can only belong to ONE management group at a time.</li>
+    <li>Example structure: Root → Corp → Finance → Prod-Finance-Sub</li>
+  </ul>
+  <div class="tip">Assign Azure Policy and RBAC roles at the management group level to ensure consistent governance across all subscriptions in your organization — no need to repeat it per subscription.</div>
+</div>
+
+<!-- 4 -->
+<div class="sec" id="rbac">
+  <div class="sec-eye">Section 04</div>
+  <h2>RBAC — Role-Based Access Control</h2>
+  <p>Azure RBAC controls <strong>who can do what on which Azure resources</strong>. It uses role assignments — granting a security principal (user, group, service principal) a specific role at a specific scope.</p>
+  <h3>Role Assignment = Who + Role + Scope</h3>
+  <table>
+    <tr><th>Component</th><th>Description</th><th>Example</th></tr>
+    <tr><td>Who (Security Principal)</td><td>User, group, service principal, managed identity</td><td>john@contoso.com</td></tr>
+    <tr><td>Role (Definition)</td><td>A collection of permissions</td><td>Virtual Machine Contributor</td></tr>
+    <tr><td>Scope</td><td>Management Group → Subscription → Resource Group → Resource</td><td>Resource Group: rg-production</td></tr>
+  </table>
+  <h3>Built-in Roles</h3>
+  <table>
+    <tr><th>Role</th><th>Permissions</th><th>Use case</th></tr>
+    <tr><td>Owner</td><td>Full control + manage access</td><td>Subscription owner</td></tr>
+    <tr><td>Contributor</td><td>Full control (create/delete) but cannot manage access</td><td>Dev team lead</td></tr>
+    <tr><td>Reader</td><td>View only, no changes</td><td>Auditors, finance</td></tr>
+    <tr><td>User Access Administrator</td><td>Manage user access only</td><td>IT helpdesk</td></tr>
+    <tr><td>VM Contributor</td><td>Manage VMs but not VNet or Storage</td><td>VM-specific admins</td></tr>
+  </table>
+  <h3>Custom Roles</h3>
+  <p>When built-in roles don't fit exactly, you can create <strong>custom RBAC roles</strong> by specifying exactly which actions are allowed (Actions), denied (NotActions), and data-plane actions (DataActions). Stored in Entra ID, assignable across subscriptions in the same tenant.</p>
+  <div class="note">RBAC is additive — if a user has Reader at subscription and Contributor at resource group, they get Contributor at that resource group. Deny assignments (rare) are the only way to explicitly block access.</div>
+</div>
+
+<!-- 5 -->
+<div class="sec" id="policy">
+  <div class="sec-eye">Section 05</div>
+  <h2>Azure Policy</h2>
+  <p>Azure Policy <strong>enforces organizational standards and assesses compliance</strong> across your Azure environment. Unlike RBAC (who can do what), Policy controls what configurations are allowed.</p>
+  <div class="grid2">
+    <div class="card">
+      <h4>RBAC</h4>
+      <p>Controls <em>who</em> can take actions</p>
+      <p>e.g., "Only Admins can create VMs"</p>
+    </div>
+    <div class="card">
+      <h4>Azure Policy</h4>
+      <p>Controls <em>what</em> configurations are allowed</p>
+      <p>e.g., "All VMs must be in East US region"</p>
+    </div>
+  </div>
+  <h3>Policy Effects</h3>
+  <table>
+    <tr><th>Effect</th><th>What it does</th></tr>
+    <tr><td>Deny</td><td>Blocks the resource creation/update if it violates policy</td></tr>
+    <tr><td>Audit</td><td>Allows creation but logs a warning for compliance reporting</td></tr>
+    <tr><td>Append</td><td>Adds required fields (e.g., auto-add tags) during resource creation</td></tr>
+    <tr><td>DeployIfNotExists</td><td>Auto-deploys a related resource if missing (e.g., install monitoring agent on VM)</td></tr>
+    <tr><td>Modify</td><td>Add, update, or remove properties on existing resources</td></tr>
+  </table>
+  <h3>Initiatives (Policy Sets)</h3>
+  <p>An <strong>Initiative</strong> groups multiple policy definitions into one assignment — e.g., the <em>"Enable Azure Monitor for VMs"</em> initiative contains 5 policies to deploy agents, configure diagnostics, etc.</p>
+  <div class="info">Azure provides built-in initiatives for compliance standards: ISO 27001, NIST, PCI DSS, CIS Benchmark. Assign them to assess your environment's compliance posture.</div>
+</div>
+
+<!-- 6 -->
+<div class="sec" id="cost">
+  <div class="sec-eye">Section 06</div>
+  <h2>Cost Management</h2>
+  <p>Azure Cost Management + Billing helps you <strong>monitor, analyze, and optimize your Azure spending</strong>.</p>
+  <h3>Key Tools</h3>
+  <table>
+    <tr><th>Tool</th><th>Purpose</th></tr>
+    <tr><td>Cost Analysis</td><td>Visual breakdown of costs by service, resource group, tag, time period</td></tr>
+    <tr><td>Budgets</td><td>Set spending thresholds; get email alerts at 50%, 80%, 100% of budget</td></tr>
+    <tr><td>Advisor Recommendations</td><td>Azure Advisor suggests cost savings (right-size VMs, buy reservations)</td></tr>
+    <tr><td>Pricing Calculator</td><td>Estimate costs before deploying (azure.microsoft.com/pricing/calculator)</td></tr>
+    <tr><td>TCO Calculator</td><td>Compare on-premises vs Azure total cost of ownership</td></tr>
+  </table>
+  <h3>Cost Optimization Tips</h3>
+  <ul>
+    <li><strong>Reserved Instances:</strong> Pre-pay for 1 or 3 years — up to 72% savings vs Pay-As-You-Go.</li>
+    <li><strong>Azure Hybrid Benefit:</strong> Use existing Windows Server / SQL Server licenses in Azure — up to 40% savings.</li>
+    <li><strong>Auto-shutdown VMs:</strong> Schedule dev/test VMs to stop at night.</li>
+    <li><strong>Right-sizing:</strong> Downsize VMs that consistently run at low CPU.</li>
+    <li><strong>Spot VMs:</strong> Use spare Azure capacity for batch/interrupt-tolerant workloads — up to 90% off.</li>
+  </ul>
+</div>
+
+<!-- 7 -->
+<div class="sec" id="tags">
+  <div class="sec-eye">Section 07</div>
+  <h2>Resource Tags</h2>
+  <p>Tags are <strong>name-value pairs</strong> attached to Azure resources for organization, cost allocation, and automation.</p>
+  <table>
+    <tr><th>Tag Example</th><th>Value</th><th>Purpose</th></tr>
+    <tr><td>Environment</td><td>Production / Dev / Staging</td><td>Filter resources by environment</td></tr>
+    <tr><td>CostCenter</td><td>Finance / Marketing / IT</td><td>Chargeback billing by department</td></tr>
+    <tr><td>Owner</td><td>sahil@cloudsynq.shop</td><td>Identify who owns the resource</td></tr>
+    <tr><td>Project</td><td>ERP-Migration</td><td>Group resources by project</td></tr>
+  </table>
+  <ul>
+    <li>Up to 50 tags per resource.</li>
+    <li>Tags are NOT inherited — tagging a Resource Group does not auto-tag its resources (use Azure Policy to enforce inheritance).</li>
+    <li>Use tags in Cost Analysis to see spending per project or department.</li>
+  </ul>
+  <div class="tip">Create an Azure Policy with the "Append" effect to automatically add required tags (e.g., Environment, CostCenter) to all new resources — prevents untagged resources.</div>
+</div>
+
+<!-- 8 Summary -->
+<div class="sec" id="summary">
+  <div class="sec-eye">Section 08</div>
+  <h2>Summary</h2>
+  <table>
+    <tr><th>Concept</th><th>Key Point</th></tr>
+    <tr><td>Azure Hierarchy</td><td>Management Group → Subscription → Resource Group → Resource; inheritance flows down</td></tr>
+    <tr><td>Subscriptions</td><td>Billing + deployment boundary; trusts one Entra ID tenant</td></tr>
+    <tr><td>Management Groups</td><td>Group subscriptions; apply policy/RBAC at scale; 6 levels max</td></tr>
+    <tr><td>RBAC</td><td>Who + Role + Scope; additive; 4 key built-ins + custom roles</td></tr>
+    <tr><td>Azure Policy</td><td>Enforce configurations (Deny/Audit/Append); Initiatives group policies; built-in compliance standards</td></tr>
+    <tr><td>Cost Management</td><td>Cost Analysis + Budgets + Advisor; savings via Reservations, Hybrid Benefit, Spot</td></tr>
+    <tr><td>Tags</td><td>Key-value labels; up to 50/resource; not inherited; use Policy to enforce tagging</td></tr>
+  </table>
+</div>
+
+<!-- 9 Docs -->
+<div class="sec" id="docs">
+  <div class="doc-sec">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:6px;">Microsoft Learn</div>
+    <h2>Official Documentation — Azure Governance</h2>
+    <table>
+      <tr><th>Topic</th><th>Microsoft Learn Link</th></tr>
+      <tr><td>Azure Subscriptions Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/organize-subscriptions">organize-subscriptions</a></td></tr>
+      <tr><td>Management Groups</td><td><a href="https://learn.microsoft.com/en-us/azure/governance/management-groups/overview">management-groups/overview</a></td></tr>
+      <tr><td>Azure RBAC Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/overview">role-based-access-control/overview</a></td></tr>
+      <tr><td>Built-in RBAC Roles</td><td><a href="https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles">built-in-roles</a></td></tr>
+      <tr><td>Azure Policy Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/governance/policy/overview">policy/overview</a></td></tr>
+      <tr><td>Policy Effects</td><td><a href="https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effects">concepts/effects</a></td></tr>
+      <tr><td>Cost Management Overview</td><td><a href="https://learn.microsoft.com/en-us/azure/cost-management-billing/cost-management-billing-overview">cost-management-billing-overview</a></td></tr>
+      <tr><td>Resource Tags</td><td><a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/tag-resources">management/tag-resources</a></td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <b>IIMT University, Meerut · Azure AZ-104 · Module 12 — Azure Governance</b><br>
+  Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" style="color:var(--acc);text-decoration:none;">CloudSynq</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -57,18 +57,59 @@ Trainer: Sahil Kumar · [CloudSynq](https://cloudsynq.shop)
 
 ---
 
-## Coming Up
-
-| Module | Topic |
+### Module 05 · Virtual Networks
+| Material | Link |
 |---|---|
-| Module 05 | Virtual Networks (VNet, Subnets, NSG, Bastion) |
-| Module 06 | Intersite Connectivity (VNet Peering, VPN Gateway, ExpressRoute) |
-| Module 07 | Traffic Management (Load Balancer, App Gateway, Traffic Manager) |
-| Module 08 | Azure Monitor, Alerts & Network Watcher |
-| Module 09 | Data Protection & Azure Backup |
-| Module 10 | App Services, AKS & Containers |
-| Module 11 | Azure AD / Entra ID & Governance |
-| Module 12 | Azure Policy, RBAC & Management Groups |
+| Theory Notes | [Open in browser](05-virtual-networks/theory-notes.html) |
+
+---
+
+### Module 06 · Intersite Connectivity
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](06-intersite-connectivity/theory-notes.html) |
+
+---
+
+### Module 07 · Traffic Management
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](07-traffic-management/theory-notes.html) |
+
+---
+
+### Module 08 · Azure Monitoring
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](08-monitoring/theory-notes.html) |
+
+---
+
+### Module 09 · Data Protection & Backup
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](09-data-protection/theory-notes.html) |
+
+---
+
+### Module 10 · App Services & Containers
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](10-app-services/theory-notes.html) |
+
+---
+
+### Module 11 · Azure Entra ID
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](11-entra-id/theory-notes.html) |
+
+---
+
+### Module 12 · Azure Governance
+| Material | Link |
+|---|---|
+| Theory Notes | [Open in browser](12-governance/theory-notes.html) |
 
 ---
 
