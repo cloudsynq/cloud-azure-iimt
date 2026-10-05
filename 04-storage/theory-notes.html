@@ -290,6 +290,26 @@
   .summary ul { padding-left:18px; }
   .summary li { font-size:13.5px; }
 
+  /* DOC REFERENCE LINKS */
+  .doc-link {
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent-light); border:1.5px solid var(--border);
+    border-radius:8px; padding:8px 16px; margin-top:16px;
+    font-size:13px; color:var(--accent-dark); text-decoration:none;
+    font-weight:500; transition:background .15s, border-color .15s;
+  }
+  .doc-link:hover { background:var(--border); border-color:var(--accent); color:var(--accent); }
+  .doc-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+
+  /* DOCS TABLE IN S11 */
+  .docs-table td a {
+    color:var(--accent);
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    word-break:break-all;
+  }
+  .docs-table td a:hover { color:var(--accent-dark); }
+
   /* FOOTER */
   .foot {
     text-align:center; padding-top:28px; margin-top:8px;
@@ -303,6 +323,7 @@
     .header { padding:28px 20px; }
     .header h1 { font-size:1.5rem; }
     .stype-grid, .redun-grid { grid-template-columns:1fr 1fr; }
+    .doc-links { flex-direction:column; }
   }
 </style>
 
@@ -327,11 +348,12 @@
       <a href="#s3"><span class="toc-num">03</span> Blob Storage</a>
       <a href="#s4"><span class="toc-num">04</span> Azure File Storage</a>
       <a href="#s5"><span class="toc-num">05</span> Azure Tables</a>
-      <a href="#s6"><span class="toc-num">06</span> Azure Queue Storage</a>
+      <a href="#s6"><span class="toc-num">06</span> Queue Storage</a>
       <a href="#s7"><span class="toc-num">07</span> Redundancy Types</a>
       <a href="#s8"><span class="toc-num">08</span> When to Use What?</a>
       <a href="#s9"><span class="toc-num">09</span> AWS Comparison</a>
       <a href="#s10"><span class="toc-num">10</span> Summary</a>
+      <a href="#s11"><span class="toc-num">11</span> Official Docs</a>
     </div>
   </div>
 
@@ -379,6 +401,10 @@
         <p>Store messages between applications. Like a to-do list that apps process one by one.</p>
       </div>
     </div>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/common/storage-introduction" target="_blank">📄 Official Docs — Introduction to Azure Storage</a>
+    </div>
   </section>
 
   <!-- S2: STORAGE ACCOUNT -->
@@ -424,6 +450,11 @@
           <tr><td><strong>Archive</strong></td><td>Data almost never accessed, kept 180+ days (backups)</td><td>Lowest</td><td>Highest + hours to retrieve</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/common/storage-account-overview" target="_blank">📄 Storage Account Overview</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview" target="_blank">📄 Blob Access Tiers</a>
     </div>
   </section>
 
@@ -488,6 +519,11 @@
 
     <h3>AWS Equivalent</h3>
     <p>Azure Blob Storage = <strong>Amazon S3 (Simple Storage Service)</strong>. Both are object storage services for storing any type of file.</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank">📄 Blob Storage Introduction</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank">📄 SAS Token Overview</a>
+    </div>
   </section>
 
   <!-- S4: FILE STORAGE -->
@@ -528,6 +564,11 @@
     <div class="callout tip">
       <div class="callout-head">Real World Use Case</div>
       A company has 5 web servers running the same application. The app needs a config file. Instead of copying the config file to each server manually, store it once in Azure File Storage and mount the share on all 5 servers. When you update the config file once, all 5 servers see the change immediately.
+    </div>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank">📄 Azure Files Introduction</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/files/storage-files-planning" target="_blank">📄 Planning for Azure Files</a>
     </div>
   </section>
 
@@ -573,6 +614,10 @@
 
     <h3>AWS Equivalent</h3>
     <p>Azure Table Storage ≈ <strong>Amazon DynamoDB</strong> — both are NoSQL key-value stores for semi-structured data.</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/tables/table-storage-overview" target="_blank">📄 Azure Table Storage Overview</a>
+    </div>
   </section>
 
   <!-- S6: QUEUE STORAGE -->
@@ -615,6 +660,10 @@
 
     <h3>AWS Equivalent</h3>
     <p>Azure Queue Storage = <strong>Amazon SQS (Simple Queue Service)</strong> — both are managed message queue services for async communication between application components.</p>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/queues/storage-queues-introduction" target="_blank">📄 Queue Storage Introduction</a>
+    </div>
   </section>
 
   <!-- S7: REDUNDANCY -->
@@ -689,6 +738,10 @@
         </tbody>
       </table>
     </div>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/common/storage-redundancy" target="_blank">📄 Azure Storage Redundancy</a>
+    </div>
   </section>
 
   <!-- S8: WHEN TO USE -->
@@ -761,6 +814,77 @@
 
     <h3>What's Next?</h3>
     <p>After storage, the next topic is <strong>Module 5: Virtual Networks (VNet)</strong> — where you will learn how to create private networks in Azure, set up subnets, configure DNS, NSGs, and connect your VMs and storage securely.</p>
+  </section>
+
+  <!-- S11: OFFICIAL DOCUMENTATION -->
+  <section class="sec" id="s11">
+    <div class="sec-eye">11 · Resources</div>
+    <h2>Official Documentation Links</h2>
+
+    <p>All links below go to <strong>Microsoft Learn</strong> — the official free learning platform by Microsoft. Always use official docs for exam preparation and real-world reference.</p>
+
+    <div class="tbl-wrap">
+      <table class="docs-table">
+        <thead><tr><th>Topic</th><th>Microsoft Learn URL</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Azure Storage — Overview</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-introduction" target="_blank">storage-introduction</a></td>
+          </tr>
+          <tr>
+            <td><strong>Storage Account</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-account-overview" target="_blank">storage-account-overview</a></td>
+          </tr>
+          <tr>
+            <td><strong>Blob Storage Introduction</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank">storage-blobs-introduction</a></td>
+          </tr>
+          <tr>
+            <td><strong>Blob Access Tiers (Hot / Cool / Archive)</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview" target="_blank">access-tiers-overview</a></td>
+          </tr>
+          <tr>
+            <td><strong>SAS Tokens — Shared Access Signature</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank">storage-sas-overview</a></td>
+          </tr>
+          <tr>
+            <td><strong>Azure Files Introduction</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank">storage-files-introduction</a></td>
+          </tr>
+          <tr>
+            <td><strong>Azure Table Storage</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/tables/table-storage-overview" target="_blank">table-storage-overview</a></td>
+          </tr>
+          <tr>
+            <td><strong>Queue Storage Introduction</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/queues/storage-queues-introduction" target="_blank">storage-queues-introduction</a></td>
+          </tr>
+          <tr>
+            <td><strong>Storage Redundancy (LRS / GRS / ZRS)</strong></td>
+            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-redundancy" target="_blank">storage-redundancy</a></td>
+          </tr>
+          <tr>
+            <td><strong>AZ-104 Exam Study Guide</strong></td>
+            <td><a href="https://learn.microsoft.com/certifications/resources/study-guides/az-104" target="_blank">AZ-104 Study Guide</a></td>
+          </tr>
+          <tr>
+            <td><strong>AZ-104 Free Learning Path</strong></td>
+            <td><a href="https://learn.microsoft.com/training/paths/az-104-administrator-prerequisites" target="_blank">az-104-administrator-prerequisites</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-head">Free Hands-On Labs — No Account Needed</div>
+      Microsoft Learn includes <strong>free browser-based labs</strong> (called "sandboxes") where you can practise Azure without a subscription or credit card. Look for the "Exercise" sections inside each module on learn.microsoft.com. These are perfect for practicing before the actual lab in class.
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Azure Portal (For All Labs)</div>
+      All Azure labs in this course are done through the Azure Portal:<br>
+      👉 <a href="https://portal.azure.com" target="_blank" style="color:var(--accent-dark);font-weight:600;">portal.azure.com</a>
+    </div>
   </section>
 
   <footer class="foot">

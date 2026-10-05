@@ -154,6 +154,7 @@
     overflow-x:auto; white-space:nowrap;
   }
   .click-path .arrow { color:var(--muted); margin:0 4px; }
+  .click-path a { color:var(--acc2); text-decoration:underline; }
 
   /* ── CODE BLOCK ── */
   .code {
@@ -221,6 +222,8 @@
   td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; }
   tr:last-child td { border-bottom:none; }
   tr:hover td { background:var(--surf2); }
+  td a { color:var(--acc2); text-decoration:none; font-family:'JetBrains Mono',monospace; font-size:12px; }
+  td a:hover { text-decoration:underline; }
 
   /* ── SUMMARY / QUIZ ── */
   .summary-card {
@@ -288,7 +291,7 @@
         <div class="concept">
           <span class="concept-icon">🌐</span>
           <h4>Azure Account</h4>
-          <p>Free Azure account or student subscription. Portal: portal.azure.com</p>
+          <p>Free Azure account or student subscription. Portal: <a href="https://portal.azure.com" target="_blank">portal.azure.com</a></p>
         </div>
         <div class="concept">
           <span class="concept-icon">📦</span>
@@ -330,7 +333,7 @@
         <li>
           <span class="inst-num">1</span>
           <div>Open the Azure Portal and log in<br>
-            <span class="click-path">portal.azure.com <span class="arrow">→</span> Sign in</span>
+            <span class="click-path"><a href="https://portal.azure.com" target="_blank">portal.azure.com</a> <span class="arrow">→</span> Sign in with your Azure account</span>
           </div>
         </li>
         <li>
@@ -368,6 +371,11 @@ Redundancy       : <span class="c-arg">LRS</span>  <span class="c-cmt"># cheapes
       <div class="box result">
         <div class="box-head">Expected Result</div>
         You should see the Storage Account overview page. The URL will be: <code>https://iimt2026storage.blob.core.windows.net</code>
+      </div>
+
+      <div class="box info" style="margin-top:12px;">
+        <div class="box-head">Official Docs</div>
+        📄 <a href="https://learn.microsoft.com/azure/storage/common/storage-account-create" target="_blank" style="color:var(--acc2)">learn.microsoft.com — Create a Storage Account</a>
       </div>
     </div>
   </div>
@@ -428,6 +436,11 @@ Redundancy       : <span class="c-arg">LRS</span>  <span class="c-cmt"># cheapes
         <div class="box-head">Why 403 Error?</div>
         The container is set to <strong>Private</strong>. No one can access blobs without authorization. This is the correct and secure default. In the next lab we will generate a temporary URL (SAS Token) to share the file.
       </div>
+
+      <div class="box info" style="margin-top:12px;">
+        <div class="box-head">Official Docs</div>
+        📄 <a href="https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal" target="_blank" style="color:var(--acc2)">Quickstart — Upload, download, list blobs (Azure portal)</a>
+      </div>
     </div>
   </div>
 
@@ -486,6 +499,11 @@ Allowed protocols : <span class="c-arg">HTTPS only</span></pre>
       <div class="box tip">
         <div class="box-head">Show Students This</div>
         Wait for the expiry time to pass (or set it to 1 minute for demo). Try the URL again after expiry — it will give a 403 error again. This shows how SAS Token provides time-limited, secure access.
+      </div>
+
+      <div class="box info" style="margin-top:12px;">
+        <div class="box-head">Official Docs</div>
+        📄 <a href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank" style="color:var(--acc2)">SAS Token Overview — Shared Access Signatures</a>
       </div>
     </div>
   </div>
@@ -549,6 +567,11 @@ Allowed protocols : <span class="c-arg">HTTPS only</span></pre>
       <div class="box result">
         <div class="box-head">Expected Result</div>
         After creating, you should see <strong>classshare</strong> listed under File shares. In the next lab, we mount this on a VM.
+      </div>
+
+      <div class="box info" style="margin-top:12px;">
+        <div class="box-head">Official Docs</div>
+        📄 <a href="https://learn.microsoft.com/azure/storage/files/storage-how-to-use-files-portal" target="_blank" style="color:var(--acc2)">Create and use Azure file share (Azure portal)</a>
       </div>
     </div>
   </div>
@@ -667,6 +690,62 @@ Allowed protocols : <span class="c-arg">HTTPS only</span></pre>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- OFFICIAL DOCUMENTATION -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Official Documentation</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">📚</div>
+      <div>
+        <div class="step-title">Microsoft Learn — Official Links</div>
+        <div class="step-subtitle">Always the most up-to-date reference for Azure Storage</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Topic</th><th>Microsoft Learn URL</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Azure Storage Introduction</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/common/storage-introduction" target="_blank">storage-introduction</a></td>
+            </tr>
+            <tr>
+              <td><strong>Create a Storage Account</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/common/storage-account-create" target="_blank">storage-account-create</a></td>
+            </tr>
+            <tr>
+              <td><strong>Blob Storage Quickstart (Portal)</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/blobs/storage-quickstart-blobs-portal" target="_blank">storage-quickstart-blobs-portal</a></td>
+            </tr>
+            <tr>
+              <td><strong>SAS Token Overview</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank">storage-sas-overview</a></td>
+            </tr>
+            <tr>
+              <td><strong>Azure Files — Create &amp; Use (Portal)</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/files/storage-how-to-use-files-portal" target="_blank">storage-how-to-use-files-portal</a></td>
+            </tr>
+            <tr>
+              <td><strong>Storage Redundancy (LRS / ZRS / GRS)</strong></td>
+              <td><a href="https://learn.microsoft.com/azure/storage/common/storage-redundancy" target="_blank">storage-redundancy</a></td>
+            </tr>
+            <tr>
+              <td><strong>Azure Portal</strong></td>
+              <td><a href="https://portal.azure.com" target="_blank">portal.azure.com</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="box tip" style="margin-top:14px;">
+        <div class="box-head">No Azure Account? No Problem</div>
+        Use <strong>Microsoft Learn Sandbox</strong> — free browser-based labs with no subscription or credit card needed.<br>
+        👉 <a href="https://learn.microsoft.com/training/modules/explore-azure-storage-services" target="_blank" style="color:var(--green)">Explore Azure Storage Services (free lab)</a>
       </div>
     </div>
   </div>
