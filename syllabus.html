@@ -1,0 +1,447 @@
+<title>AZ-104 Syllabus</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root {
+    --bg: #F2F6FC; --surface: #FFFFFF; --s2: #EBF3FF; --s3: #0A2540;
+    --fg: #0D1E34; --muted: #4A6080; --light: #8AA0BC;
+    --acc: #0078D4; --acc-l: #D8EEFF; --acc-d: #005A9E;
+    --grn: #107C10; --grn-l: #DFF6DD;
+    --org: #C55A11; --org-l: #FFF4CE;
+    --bdr: #D0E3F5; --bdr-l: #E8F2FF;
+    --shadow: 0 2px 10px rgba(0,120,212,.09), 0 1px 2px rgba(0,0,0,.04);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#07111F; --surface:#0C1D33; --s2:#112038; --s3:#050F1A;
+      --fg:#D0E6F8; --muted:#7090B0; --light:#3A5A7A;
+      --acc:#4BA3E8; --acc-l:#0A2040; --acc-d:#79C0FF;
+      --grn:#6CCB5F; --grn-l:#0A2510;
+      --org:#F7A850; --org-l:#251500;
+      --bdr:#1A3050; --bdr-l:#102030;
+      --shadow:0 2px 10px rgba(0,0,0,.5); color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#07111F; --surface:#0C1D33; --s2:#112038; --s3:#050F1A;
+    --fg:#D0E6F8; --muted:#7090B0; --light:#3A5A7A;
+    --acc:#4BA3E8; --acc-l:#0A2040; --acc-d:#79C0FF;
+    --grn:#6CCB5F; --grn-l:#0A2510;
+    --org:#F7A850; --org-l:#251500;
+    --bdr:#1A3050; --bdr-l:#102030;
+    --shadow:0 2px 10px rgba(0,0,0,.5); color-scheme:dark;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; }
+  body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--fg); font-size:15px; line-height:1.7; padding-inline:16px; }
+  .wrap { max-width:960px; margin:0 auto; padding-block:36px 80px; }
+
+  /* HERO */
+  .hero { background:linear-gradient(135deg, var(--s3) 0%, #003A75 100%); border-radius:18px; padding:44px 40px 36px; margin-bottom:32px; position:relative; overflow:hidden; }
+  .hero::after { content:''; position:absolute; right:-60px; top:-60px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(0,120,212,.3) 0%,transparent 70%); pointer-events:none; }
+  .hero-eye { font-family:'Outfit',sans-serif; font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#60B8FF; margin-bottom:10px; }
+  .hero h1 { font-family:'Outfit',sans-serif; font-size:2.1rem; font-weight:800; color:#FFF; line-height:1.15; text-wrap:balance; margin-bottom:8px; }
+  .hero h1 em { color:#60B8FF; font-style:normal; }
+  .hero-sub { font-size:14px; color:rgba(255,255,255,.65); margin-bottom:28px; }
+
+  .stats { display:flex; flex-wrap:wrap; gap:12px; }
+  .stat { background:rgba(255,255,255,.1); border-radius:12px; padding:12px 18px; min-width:110px; }
+  .stat-n { font-family:'Outfit',sans-serif; font-size:2rem; font-weight:800; color:#FFF; line-height:1; display:block; }
+  .stat-l { font-size:11.5px; color:rgba(255,255,255,.6); margin-top:3px; }
+  .stat.done .stat-n { color:#6DCB6D; }
+  .stat.left .stat-n { color:#F7A850; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin:20px 0 0; }
+  .progress-label { font-size:12px; color:rgba(255,255,255,.5); margin-bottom:6px; letter-spacing:.03em; }
+  .progress-bar { height:6px; background:rgba(255,255,255,.15); border-radius:100px; overflow:hidden; }
+  .progress-fill { height:100%; background:linear-gradient(90deg,#0078D4,#60B8FF); border-radius:100px; transition:width .4s; }
+
+  /* UNIT HEADER */
+  .unit-header { display:flex; align-items:center; gap:12px; margin:36px 0 16px; }
+  .unit-badge { font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; background:var(--acc); color:#FFF; border-radius:6px; padding:4px 10px; white-space:nowrap; }
+  .unit-title { font-family:'Outfit',sans-serif; font-size:1.15rem; font-weight:700; color:var(--fg); }
+  .unit-line { flex:1; height:1px; background:var(--bdr); }
+
+  /* MODULE CARD */
+  .mod { background:var(--surface); border:1px solid var(--bdr); border-radius:14px; margin-bottom:16px; box-shadow:var(--shadow); overflow:hidden; }
+  .mod-head { display:flex; align-items:center; gap:14px; padding:18px 22px; border-bottom:1px solid var(--bdr-l); cursor:pointer; user-select:none; }
+  .mod-num { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:500; color:var(--acc); background:var(--acc-l); border-radius:7px; padding:4px 10px; white-space:nowrap; }
+  .mod-name { font-family:'Outfit',sans-serif; font-size:1.02rem; font-weight:700; color:var(--fg); flex:1; }
+  .mod-count { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .mod-progress { width:60px; height:4px; background:var(--bdr); border-radius:100px; overflow:hidden; }
+  .mod-fill { height:100%; border-radius:100px; }
+  .mod-body { padding:6px 22px 18px; }
+
+  /* TOPIC ROW */
+  .topic { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--bdr-l); }
+  .topic:last-child { border-bottom:none; }
+  .t-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .t-name { font-size:13.5px; color:var(--fg); flex:1; }
+  .t-type { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--muted); background:var(--s2); border-radius:4px; padding:2px 8px; white-space:nowrap; }
+  .t-status { font-size:11px; font-weight:600; font-family:'Outfit',sans-serif; border-radius:20px; padding:2px 10px; white-space:nowrap; }
+
+  .done-dot { background:var(--grn); }
+  .todo-dot { background:var(--bdr); }
+  .todo-fill { background:var(--bdr); }
+  .done-fill { background:var(--grn); }
+
+  .s-done  { background:var(--grn-l); color:var(--grn); }
+  .s-todo  { background:var(--s2); color:var(--muted); }
+
+  /* AZ-104 DOMAIN MAP */
+  .domain-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin-top:16px; }
+  .domain { background:var(--surface); border:1px solid var(--bdr); border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); }
+  .domain-pct { font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:500; color:var(--acc); margin-bottom:4px; }
+  .domain-name { font-family:'Outfit',sans-serif; font-size:.9rem; font-weight:700; color:var(--fg); margin-bottom:6px; }
+  .domain-topics { font-size:12.5px; color:var(--muted); line-height:1.5; }
+
+  @media (max-width:620px) {
+    .hero { padding:28px 20px; }
+    .hero h1 { font-size:1.6rem; }
+    .stats { gap:8px; }
+    .stat { min-width:90px; padding:10px 14px; }
+    .mod-head { flex-wrap:wrap; gap:8px; }
+    .mod-progress { display:none; }
+    .t-type { display:none; }
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eye">IIMT University, Meerut · 3rd Semester · AZ-104</div>
+    <h1>Microsoft Azure — <em>Complete Syllabus</em></h1>
+    <div class="hero-sub">Cloud Computing · Azure Administration (AZ-104) · Unit-Wise Breakdown</div>
+    <div class="stats">
+      <div class="stat"><span class="stat-n">65</span><div class="stat-l">Total Topics</div></div>
+      <div class="stat"><span class="stat-n">13</span><div class="stat-l">Modules</div></div>
+      <div class="stat done"><span class="stat-n">15</span><div class="stat-l">Completed</div></div>
+      <div class="stat left"><span class="stat-n">50</span><div class="stat-l">Pending</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label">Overall Progress — 23% complete</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:23%"></div></div>
+    </div>
+  </div>
+
+  <!-- UNIT 1 -->
+  <div class="unit-header">
+    <div class="unit-badge">Unit 1</div>
+    <div class="unit-title">Cloud Fundamentals &amp; Azure Basics</div>
+    <div class="unit-line"></div>
+  </div>
+
+  <!-- Module 0 -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 00</div>
+      <div class="mod-name">Basic Networking</div>
+      <div class="mod-count">4 topics · 4 done</div>
+      <div class="mod-progress"><div class="mod-fill done-fill" style="width:100%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Introduction to Networking</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">IP Addressing</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">CIDR (Subnetting)</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Protocols (TCP/IP, HTTP, DNS)</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+    </div>
+  </div>
+
+  <!-- Module 1 -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 01</div>
+      <div class="mod-name">Introduction to Cloud Computing</div>
+      <div class="mod-count">5 topics · 5 done</div>
+      <div class="mod-progress"><div class="mod-fill done-fill" style="width:100%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Why Cloud? Benefits &amp; Use Cases</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">History of Cloud Computing</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Service Models — IaaS, PaaS, SaaS</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Deployment Models — Public, Private, Hybrid</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Cloud Providers — AWS, Azure, GCP</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+    </div>
+  </div>
+
+  <!-- Module 2 -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 02</div>
+      <div class="mod-name">Introduction to Microsoft Azure</div>
+      <div class="mod-count">6 topics · 5 done</div>
+      <div class="mod-progress"><div class="mod-fill done-fill" style="width:83%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Why Azure? Market Position</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Regions &amp; Availability Zones</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Azure Portal &amp; Cloud Shell</div><div class="t-type">Lab</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Azure PowerShell &amp; CLI</div><div class="t-type">Lab</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Azure Resource Manager (ARM) — Overview</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">ARM Templates — Hands-on Deployment</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- UNIT 2 -->
+  <div class="unit-header">
+    <div class="unit-badge">Unit 2</div>
+    <div class="unit-title">Compute — Virtual Machines &amp; ARM Templates</div>
+    <div class="unit-line"></div>
+  </div>
+
+  <!-- Module 3 (RBAC / RGs) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 03</div>
+      <div class="mod-name">Resource Groups, RBAC &amp; Entra ID</div>
+      <div class="mod-count">5 topics · 1 done</div>
+      <div class="mod-progress"><div class="mod-fill done-fill" style="width:20%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Azure Hierarchy — Tenant → Subscription → RG → Resource</div><div class="t-type">Theory</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Resource Groups — Best Practices</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure RBAC — Roles, Scope, Assignment</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Entra ID — Users, Groups, MFA</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Managed Identities (System &amp; User-assigned)</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 4 (ARM) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 04</div>
+      <div class="mod-name">ARM Templates &amp; Bicep</div>
+      <div class="mod-count">5 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">ARM Template Structure — $schema, parameters, variables, resources</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Parameters &amp; Variables in Templates</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Template Functions (concat, uniqueString, resourceId)</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">ARM Template Deployment — CLI, Portal, PowerShell</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Bicep — Modern Alternative to ARM JSON</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 5 (VMs) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 05</div>
+      <div class="mod-name">Working with Virtual Machines</div>
+      <div class="mod-count">6 topics · 1 done</div>
+      <div class="mod-progress"><div class="mod-fill done-fill" style="width:17%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VM Planning — Sizes, Series &amp; Use Cases</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot done-dot"></div><div class="t-name">Creating VMs — Windows &amp; Linux</div><div class="t-type">Lab</div><div class="t-status s-done">Done</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VM Disks — OS, Data, Temp; HDD/SSD/Premium</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VM Networking — VNet, NSG, Public IP, Bastion</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VM Availability — Sets, Zones, Scale Sets</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VM Extensions &amp; VM Pricing Models</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- UNIT 3 -->
+  <div class="unit-header">
+    <div class="unit-badge">Unit 3</div>
+    <div class="unit-title">Storage &amp; Data Services</div>
+    <div class="unit-line"></div>
+  </div>
+
+  <!-- Module 6 (Storage) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 06</div>
+      <div class="mod-name">Azure Storage</div>
+      <div class="mod-count">6 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Storage Account — Types, Replication (LRS/GRS/ZRS)</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Blob Storage — Containers, Access Tiers, Lifecycle</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Files — SMB File Shares</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Table Storage &amp; Queue Storage</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Snapshots &amp; Soft Delete</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">SAS Tokens &amp; Access Keys</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 7 (Data Services) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 07</div>
+      <div class="mod-name">Data Services &amp; CDN</div>
+      <div class="mod-count">2 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure CDN Streaming</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure File Sync</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- UNIT 4 -->
+  <div class="unit-header">
+    <div class="unit-badge">Unit 4</div>
+    <div class="unit-title">Networking — VNets, Connectivity &amp; Traffic</div>
+    <div class="unit-line"></div>
+  </div>
+
+  <!-- Module 8 (VNets) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 08</div>
+      <div class="mod-name">Virtual Networks (VNet)</div>
+      <div class="mod-count">5 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Virtual Networks — Address Space, Subnets</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">IP Addressing in Azure — Private &amp; Public IPs</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure DNS — Private Zones &amp; Public Zones</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Network Security Groups (NSG) — Rules, Priority</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Bastion Host — Secure Browser-Based Access</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 9 (Inter-site) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 09</div>
+      <div class="mod-name">Inter-site Connectivity &amp; Traffic Management</div>
+      <div class="mod-count">10 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VNet Peering — Same Region &amp; Global</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">VNet-to-VNet Connections (VPN Gateway)</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure ExpressRoute — Private Connection to Azure</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Custom Routes &amp; User-Defined Routes (UDR)</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Load Balancer — L4 Load Balancing</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Autoscaling &amp; VM Scale Sets</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Traffic Manager — DNS-Based Load Balancing</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Application Gateway — L7 Load Balancing, WAF</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Firewall Setup</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Virtual WAN</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- UNIT 5 -->
+  <div class="unit-header">
+    <div class="unit-badge">Unit 5</div>
+    <div class="unit-title">App Services, Identity, Governance &amp; Operations</div>
+    <div class="unit-line"></div>
+  </div>
+
+  <!-- Module 10 (App Services) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 10</div>
+      <div class="mod-name">Application Services</div>
+      <div class="mod-count">7 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">App Service Plans — Free, Basic, Standard, Premium</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">App Services — Web, Mobile, API Apps</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure SQL Server &amp; Azure SQL Database</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">WebJobs — Background Tasks</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Cross Platform Applications</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Containers — Docker &amp; Azure Container Registry</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Kubernetes (AKS) — Azure Kubernetes Service</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 11 (Monitoring) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 11</div>
+      <div class="mod-name">Azure Monitoring</div>
+      <div class="mod-count">3 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Monitor — Metrics, Logs, Dashboards</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Alerts — Action Groups, Alert Rules</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Network Watcher — Connection Monitor, Flow Logs</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 12 (Data Protection) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 12</div>
+      <div class="mod-name">Data Protection &amp; Backup</div>
+      <div class="mod-count">4 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Data Replication Types — LRS, ZRS, GRS, RA-GRS</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Backup — Recovery Services Vault</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure VM Backup &amp; Restore</div><div class="t-type">Lab</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">On-Premises Backup using MARS Agent</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- Module 13 (Entra/Governance) -->
+  <div class="mod">
+    <div class="mod-head">
+      <div class="mod-num">Module 13</div>
+      <div class="mod-name">Azure AD / Entra ID &amp; Governance</div>
+      <div class="mod-count">10 topics · 0 done</div>
+      <div class="mod-progress"><div class="mod-fill todo-fill" style="width:0%"></div></div>
+    </div>
+    <div class="mod-body">
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">What is Azure AD / Entra ID</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure AD Connect — Hybrid Identity</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure AD Join — Device Management</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">MFA &amp; Conditional Access</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Identity Protection</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Subscriptions &amp; Accounts</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Users &amp; Groups Management</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">RBAC — Role Assignments &amp; Custom Roles</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Policy — Definitions, Initiatives, Compliance</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+      <div class="topic"><div class="t-dot todo-dot"></div><div class="t-name">Azure Management Groups — Hierarchy Governance</div><div class="t-type">Theory</div><div class="t-status s-todo">Pending</div></div>
+    </div>
+  </div>
+
+  <!-- AZ-104 EXAM DOMAINS -->
+  <div class="unit-header" style="margin-top:44px;">
+    <div class="unit-badge" style="background:var(--s3);">AZ-104</div>
+    <div class="unit-title">Exam Domain Mapping</div>
+    <div class="unit-line"></div>
+  </div>
+  <div class="domain-grid">
+    <div class="domain">
+      <div class="domain-pct">15–20%</div>
+      <div class="domain-name">Manage Azure Identities &amp; Governance</div>
+      <div class="domain-topics">Modules 03, 13 — RBAC, Entra ID, Azure Policy, Management Groups</div>
+    </div>
+    <div class="domain">
+      <div class="domain-pct">15–20%</div>
+      <div class="domain-name">Implement &amp; Manage Storage</div>
+      <div class="domain-topics">Modules 06, 07 — Blob, Files, Tables, Queue, SAS, CDN</div>
+    </div>
+    <div class="domain">
+      <div class="domain-pct">20–25%</div>
+      <div class="domain-name">Deploy &amp; Manage Azure Compute</div>
+      <div class="domain-topics">Modules 04, 05, 10 — ARM, VMs, App Services, AKS</div>
+    </div>
+    <div class="domain">
+      <div class="domain-pct">20–25%</div>
+      <div class="domain-name">Implement &amp; Manage Virtual Networking</div>
+      <div class="domain-topics">Modules 08, 09 — VNets, NSG, Load Balancer, DNS, ExpressRoute</div>
+    </div>
+    <div class="domain">
+      <div class="domain-pct">10–15%</div>
+      <div class="domain-name">Monitor &amp; Maintain Azure Resources</div>
+      <div class="domain-topics">Modules 11, 12 — Azure Monitor, Backup, Alerts, Network Watcher</div>
+    </div>
+  </div>
+
+  <div style="margin-top:48px; padding:20px 0; border-top:1px solid var(--bdr); text-align:center; font-size:13px; color:var(--muted);">
+    <strong>IIMT University, Meerut · Cloud Computing (AZ-104) · 3rd Semester</strong><br>
+    65 Topics across 13 Modules · 5 Course Units · Trainer: Sahil Kumar · <a href="https://cloudsynq.shop" target="_blank" style="color:var(--acc); text-decoration:none;">CloudSynq</a>
+  </div>
+
+</div>
