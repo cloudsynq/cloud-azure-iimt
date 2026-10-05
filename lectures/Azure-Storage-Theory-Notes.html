@@ -1,0 +1,771 @@
+<title>Azure Storage Theory Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg:          #F4F8FF;
+    --surface:     #FFFFFF;
+    --surface-2:   #EEF4FF;
+    --text:        #0E1E35;
+    --text-muted:  #4A6080;
+    --text-light:  #8AA0BC;
+    --accent:      #0078D4;
+    --accent-light:#DDEEFF;
+    --accent-dark: #005A9E;
+    --azure-dark:  #0A2540;
+    --border:      #D4E4F7;
+    --border-light:#EAF2FF;
+    --green:       #107C10;
+    --green-bg:    #DFF6DD;
+    --orange:      #C55A11;
+    --orange-bg:   #FFF4CE;
+    --red:         #A4262C;
+    --red-bg:      #FDE7E9;
+    --purple:      #5C2D91;
+    --purple-bg:   #EDE7F6;
+    --shadow:      0 2px 8px rgba(0,120,212,.08), 0 1px 2px rgba(0,0,0,.04);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:          #07111F;
+      --surface:     #0D1F35;
+      --surface-2:   #132840;
+      --text:        #D8E8F8;
+      --text-muted:  #7A9BBE;
+      --text-light:  #4A6A8E;
+      --accent:      #4BA3E8;
+      --accent-light:#0A2040;
+      --accent-dark: #79BFF5;
+      --azure-dark:  #061428;
+      --border:      #1A3050;
+      --border-light:#0F2030;
+      --green:       #6CCB5F;
+      --green-bg:    #0A2510;
+      --orange:      #F7A850;
+      --orange-bg:   #251500;
+      --red:         #F1707A;
+      --red-bg:      #250A0C;
+      --purple:      #C2A7F0;
+      --purple-bg:   #1A0A35;
+      --shadow:      0 2px 8px rgba(0,0,0,.4);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:          #07111F;
+    --surface:     #0D1F35;
+    --surface-2:   #132840;
+    --text:        #D8E8F8;
+    --text-muted:  #7A9BBE;
+    --text-light:  #4A6A8E;
+    --accent:      #4BA3E8;
+    --accent-light:#0A2040;
+    --accent-dark: #79BFF5;
+    --azure-dark:  #061428;
+    --border:      #1A3050;
+    --border-light:#0F2030;
+    --green:       #6CCB5F;
+    --green-bg:    #0A2510;
+    --orange:      #F7A850;
+    --orange-bg:   #251500;
+    --red:         #F1707A;
+    --red-bg:      #250A0C;
+    --purple:      #C2A7F0;
+    --purple-bg:   #1A0A35;
+    --shadow:      0 2px 8px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.75;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding-block: 36px 80px; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--azure-dark) 0%, #003F7F 100%);
+    border-radius: 16px;
+    padding: 40px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content:'';
+    position:absolute;
+    right:-40px; top:-40px;
+    width:220px; height:220px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(0,120,212,.35) 0%, transparent 70%);
+  }
+  .header-eye {
+    font-family:'Outfit',sans-serif;
+    font-size:11px; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase;
+    color: #60B8FF; margin-bottom:10px;
+  }
+  .header h1 {
+    font-family:'Outfit',sans-serif;
+    font-size:2rem; font-weight:800;
+    color:#FFF; line-height:1.2;
+    text-wrap:balance; margin-bottom:16px;
+  }
+  .header h1 em { color:#60B8FF; font-style:normal; }
+  .pills { display:flex; flex-wrap:wrap; gap:8px; }
+  .pill {
+    background:rgba(255,255,255,.12);
+    color:rgba(255,255,255,.85);
+    border-radius:100px; padding:4px 14px;
+    font-size:12px; font-weight:500;
+  }
+  .pill b { color:#60B8FF; }
+
+  /* TOC */
+  .toc {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:22px 28px;
+    margin-bottom:28px; box-shadow:var(--shadow);
+  }
+  .toc-head {
+    font-family:'Outfit',sans-serif; font-size:12px;
+    font-weight:700; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--text-muted);
+    margin-bottom:14px;
+  }
+  .toc-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    gap:6px;
+  }
+  .toc-grid a {
+    display:flex; align-items:center; gap:8px;
+    color:var(--text); text-decoration:none;
+    font-size:13.5px; padding:6px 10px;
+    border-radius:7px; transition:background .15s;
+  }
+  .toc-grid a:hover { background:var(--accent-light); color:var(--accent); }
+  .toc-num {
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; font-weight:600;
+    color:var(--accent); background:var(--accent-light);
+    border-radius:5px; padding:2px 7px; flex-shrink:0;
+  }
+
+  /* SECTION */
+  .sec {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:32px 36px;
+    margin-bottom:22px; box-shadow:var(--shadow);
+    scroll-margin-top:16px;
+  }
+  .sec-eye {
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px; font-weight:600;
+    letter-spacing:.12em; text-transform:uppercase;
+    color:var(--accent); margin-bottom:6px;
+  }
+  .sec h2 {
+    font-family:'Outfit',sans-serif;
+    font-size:1.4rem; font-weight:700;
+    color:var(--text); margin-bottom:20px;
+    padding-bottom:14px; border-bottom:2px solid var(--border-light);
+    text-wrap:balance;
+  }
+  .sec h3 {
+    font-family:'Outfit',sans-serif;
+    font-size:1.05rem; font-weight:600;
+    color:var(--text); margin:24px 0 10px;
+  }
+  .sec h3::before { content:'▸ '; color:var(--accent); }
+  .sec p { color:var(--text); margin-bottom:12px; }
+  .sec ul, .sec ol { padding-left:20px; margin-bottom:14px; display:flex; flex-direction:column; gap:6px; }
+  .sec li { color:var(--text); }
+  .sec li::marker { color:var(--accent); }
+
+  /* ANALOGY BOX */
+  .analogy {
+    background:var(--orange-bg);
+    border-left:4px solid var(--orange);
+    border-radius:0 10px 10px 0;
+    padding:16px 20px; margin:18px 0;
+    font-size:14px;
+  }
+  .analogy-head {
+    font-family:'Outfit',sans-serif;
+    font-weight:700; font-size:12px;
+    letter-spacing:.05em; text-transform:uppercase;
+    color:var(--orange); margin-bottom:6px;
+  }
+
+  /* STORAGE TYPE CARDS */
+  .stype-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(195px,1fr));
+    gap:14px; margin:20px 0;
+  }
+  .stype {
+    border-radius:12px; padding:20px 16px;
+    border:1.5px solid var(--border);
+  }
+  .stype.blob   { border-color:#0078D4; background:var(--accent-light); }
+  .stype.files  { border-color:#107C10; background:var(--green-bg); }
+  .stype.tables { border-color:#5C2D91; background:var(--purple-bg); }
+  .stype.queue  { border-color:#C55A11; background:var(--orange-bg); }
+  .stype-icon { font-size:2rem; margin-bottom:10px; display:block; }
+  .stype h4 {
+    font-family:'Outfit',sans-serif;
+    font-size:.9rem; font-weight:700;
+    color:var(--text); margin-bottom:4px;
+  }
+  .stype p { font-size:12.5px; color:var(--text-muted); line-height:1.5; margin:0; }
+
+  /* CALLOUT */
+  .callout {
+    border-radius:10px; padding:16px 20px;
+    margin:18px 0; border-left:4px solid; font-size:14px;
+  }
+  .callout-head {
+    font-family:'Outfit',sans-serif; font-weight:700;
+    font-size:12.5px; letter-spacing:.04em;
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .callout.info  { background:var(--accent-light); border-color:var(--accent); }
+  .callout.info .callout-head { color:var(--accent-dark); }
+  .callout.tip   { background:var(--green-bg); border-color:var(--green); }
+  .callout.tip .callout-head { color:var(--green); }
+  .callout.warn  { background:var(--orange-bg); border-color:var(--orange); }
+  .callout.warn .callout-head { color:var(--orange); }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x:auto; margin:18px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th {
+    background:var(--azure-dark); color:#FFF;
+    font-family:'Outfit',sans-serif; font-weight:600;
+    font-size:12px; text-align:left; padding:11px 16px;
+  }
+  th:first-child { border-radius:8px 0 0 0; }
+  th:last-child  { border-radius:0 8px 0 0; }
+  td { padding:10px 16px; border-bottom:1px solid var(--border-light); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:nth-child(even) td { background:var(--surface-2); }
+
+  /* REDUNDANCY VISUAL */
+  .redun-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:18px 0; }
+  .redun {
+    border:1px solid var(--border); border-radius:10px;
+    padding:16px; background:var(--surface-2);
+  }
+  .redun-tag {
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px; font-weight:700; color:var(--accent);
+    margin-bottom:6px; display:block;
+  }
+  .redun h5 { font-family:'Outfit',sans-serif; font-size:.85rem; font-weight:600; color:var(--text); margin-bottom:4px; }
+  .redun p  { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .redun-copies {
+    display:flex; gap:4px; margin-top:8px;
+  }
+  .copy-dot {
+    width:10px; height:10px; border-radius:50%;
+    background:var(--accent); opacity:.4;
+  }
+  .copy-dot.active { opacity:1; }
+  .copy-dot.remote { background: #E45D00; }
+
+  /* SUMMARY */
+  .summary {
+    border:2px solid var(--accent); border-radius:12px;
+    padding:22px 26px; background:var(--accent-light); margin:24px 0;
+  }
+  .summary h4 {
+    font-family:'Outfit',sans-serif; font-weight:700;
+    font-size:.95rem; color:var(--accent-dark); margin-bottom:10px;
+  }
+  .summary ul { padding-left:18px; }
+  .summary li { font-size:13.5px; }
+
+  /* FOOTER */
+  .foot {
+    text-align:center; padding-top:28px; margin-top:8px;
+    border-top:1px solid var(--border);
+    color:var(--text-muted); font-size:12.5px;
+  }
+  .foot b { color:var(--accent); }
+
+  @media (max-width:600px) {
+    .sec { padding:22px 18px; }
+    .header { padding:28px 20px; }
+    .header h1 { font-size:1.5rem; }
+    .stype-grid, .redun-grid { grid-template-columns:1fr 1fr; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="header">
+    <div class="header-eye">Azure Administration (AZ-104) · 3rd Semester · IIMT · Module 4</div>
+    <h1>Azure <em>Storage</em><br>Complete Theory Notes</h1>
+    <div class="pills">
+      <span class="pill"><b>Module 4</b> of 12</span>
+      <span class="pill"><b>Previous:</b> Virtual Machines</span>
+      <span class="pill"><b>Next:</b> Virtual Networks (VNet)</span>
+      <span class="pill"><b>Beginner Friendly</b></span>
+    </div>
+  </header>
+
+  <div class="toc">
+    <div class="toc-head">Topics Covered</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span> What is Azure Storage?</a>
+      <a href="#s2"><span class="toc-num">02</span> Storage Account</a>
+      <a href="#s3"><span class="toc-num">03</span> Blob Storage</a>
+      <a href="#s4"><span class="toc-num">04</span> Azure File Storage</a>
+      <a href="#s5"><span class="toc-num">05</span> Azure Tables</a>
+      <a href="#s6"><span class="toc-num">06</span> Azure Queue Storage</a>
+      <a href="#s7"><span class="toc-num">07</span> Redundancy Types</a>
+      <a href="#s8"><span class="toc-num">08</span> When to Use What?</a>
+      <a href="#s9"><span class="toc-num">09</span> AWS Comparison</a>
+      <a href="#s10"><span class="toc-num">10</span> Summary</a>
+    </div>
+  </div>
+
+  <!-- S1: WHAT IS AZURE STORAGE -->
+  <section class="sec" id="s1">
+    <div class="sec-eye">01 · Introduction</div>
+    <h2>What is Azure Storage?</h2>
+
+    <p><strong>Azure Storage</strong> is Microsoft Azure's cloud storage solution. It is a service that lets you store data in the cloud — files, images, videos, database tables, messages — and access them from anywhere in the world over the internet.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Think of Azure Storage as a <strong>big secure warehouse</strong> owned by Microsoft. You can store anything in this warehouse — files, photos, messages — and access them from your laptop, phone, or any application, from anywhere in the world, anytime.
+    </div>
+
+    <h3>Why Do We Need Cloud Storage?</h3>
+    <ul>
+      <li>Your laptop hard disk can crash — cloud storage survives hardware failure</li>
+      <li>You can access data from anywhere — not just from one computer</li>
+      <li>Multiple people and applications can use the same data at the same time</li>
+      <li>Azure automatically keeps multiple copies of your data (redundancy)</li>
+      <li>You only pay for what you use — no need to buy physical hard drives</li>
+    </ul>
+
+    <h3>Azure Storage has 4 Types</h3>
+    <div class="stype-grid">
+      <div class="stype blob">
+        <span class="stype-icon">🗂️</span>
+        <h4>Blob Storage</h4>
+        <p>Store any type of file — images, videos, PDFs, backups. Like Google Drive.</p>
+      </div>
+      <div class="stype files">
+        <span class="stype-icon">📁</span>
+        <h4>Azure Files</h4>
+        <p>Shared network drive that multiple VMs can connect to. Like a company's shared folder.</p>
+      </div>
+      <div class="stype tables">
+        <span class="stype-icon">📊</span>
+        <h4>Azure Tables</h4>
+        <p>Store structured data (like a table/spreadsheet) without a complex database setup.</p>
+      </div>
+      <div class="stype queue">
+        <span class="stype-icon">📬</span>
+        <h4>Queue Storage</h4>
+        <p>Store messages between applications. Like a to-do list that apps process one by one.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- S2: STORAGE ACCOUNT -->
+  <section class="sec" id="s2">
+    <div class="sec-eye">02 · Foundation</div>
+    <h2>Storage Account — The Foundation</h2>
+
+    <p>Before you can use <em>any</em> type of Azure Storage, you must first create a <strong>Storage Account</strong>. A Storage Account is the container that holds all your storage services (Blob, Files, Tables, Queue) together.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      A Storage Account is like a <strong>bank account</strong>. The bank account itself does not hold cash directly — inside it you have a savings account, a current account, a locker, etc. Similarly, the Storage Account contains your Blob Containers, File Shares, Tables, and Queues.
+    </div>
+
+    <h3>Key Properties of a Storage Account</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>What It Means</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Name</strong></td><td>Globally unique name (all lowercase, no spaces, 3–24 chars)</td><td>iimt2026storage</td></tr>
+          <tr><td><strong>Region</strong></td><td>Where your data is physically stored</td><td>Central India</td></tr>
+          <tr><td><strong>Performance</strong></td><td>Standard (HDD, cheaper) or Premium (SSD, faster)</td><td>Standard</td></tr>
+          <tr><td><strong>Redundancy</strong></td><td>How many copies Azure keeps and where</td><td>LRS, GRS, ZRS</td></tr>
+          <tr><td><strong>Access Tier</strong></td><td>Hot (frequent access) or Cool (infrequent access, cheaper)</td><td>Hot</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Storage Account Name Rule</div>
+      The name must be <strong>globally unique</strong> across all of Azure — no two accounts in the world can have the same name. This is because it becomes part of the URL:<br>
+      <code>https://iimt2026storage.blob.core.windows.net</code>
+    </div>
+
+    <h3>Access Tiers for Blob Storage</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tier</th><th>Use When</th><th>Storage Cost</th><th>Access Cost</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Hot</strong></td><td>Data accessed frequently (daily/weekly)</td><td>Higher</td><td>Lower</td></tr>
+          <tr><td><strong>Cool</strong></td><td>Data accessed rarely (monthly), kept 30+ days</td><td>Lower</td><td>Higher</td></tr>
+          <tr><td><strong>Cold</strong></td><td>Data rarely accessed, kept 90+ days</td><td>Very Low</td><td>High</td></tr>
+          <tr><td><strong>Archive</strong></td><td>Data almost never accessed, kept 180+ days (backups)</td><td>Lowest</td><td>Highest + hours to retrieve</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S3: BLOB STORAGE -->
+  <section class="sec" id="s3">
+    <div class="sec-eye">03 · Blob Storage</div>
+    <h2>Azure Blob Storage</h2>
+
+    <p><strong>BLOB</strong> stands for <strong>Binary Large OBject</strong>. Blob Storage is used to store <em>unstructured data</em> — meaning any type of file that doesn't follow a fixed format.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Blob Storage is like <strong>Google Drive or Dropbox</strong> — but for your applications and websites. You upload any file (photo, video, PDF, zip, backup) and get a URL to access it. Your website can display images from Blob Storage directly.
+    </div>
+
+    <h3>What Can You Store in Blob?</h3>
+    <ul>
+      <li>Images and videos for websites</li>
+      <li>PDF documents and reports</li>
+      <li>Database backups and log files</li>
+      <li>Build artifacts in a DevOps pipeline</li>
+      <li>Machine learning datasets</li>
+      <li>Audio files, ZIP files — literally anything</li>
+    </ul>
+
+    <h3>Blob Storage Structure</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Level</th><th>Name</th><th>Analogy</th></tr></thead>
+        <tbody>
+          <tr><td>Top Level</td><td>Storage Account</td><td>The bank account</td></tr>
+          <tr><td>Middle Level</td><td>Container</td><td>A folder inside Drive</td></tr>
+          <tr><td>Bottom Level</td><td>Blob (the actual file)</td><td>A file inside the folder</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Types of Blobs</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Blob Type</th><th>Best For</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Block Blob</strong></td><td>Most files — images, videos, documents</td><td>photo.jpg, report.pdf</td></tr>
+          <tr><td><strong>Append Blob</strong></td><td>Log files (only add, never overwrite)</td><td>app.log, error.log</td></tr>
+          <tr><td><strong>Page Blob</strong></td><td>VM disk files (VHDs), frequent random read/write</td><td>vm-disk.vhd</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Container Access Levels</h3>
+    <ul>
+      <li><strong>Private (default)</strong> — Only authorized users can access. Need authentication. Best for sensitive data.</li>
+      <li><strong>Blob</strong> — Anyone with the URL can read blobs, but cannot list what's inside the container.</li>
+      <li><strong>Container</strong> — Anyone can list all blobs inside and read them. Use for fully public data.</li>
+    </ul>
+
+    <div class="callout warn">
+      <div class="callout-head">SAS Token — Temporary Access</div>
+      If a container is Private but you want to share one file temporarily, use a <strong>SAS (Shared Access Signature) Token</strong>. It generates a special URL with an expiry time. After the time expires, the URL stops working.<br><br>
+      Example: Share a file that expires in 2 hours for a client download.
+    </div>
+
+    <h3>AWS Equivalent</h3>
+    <p>Azure Blob Storage = <strong>Amazon S3 (Simple Storage Service)</strong>. Both are object storage services for storing any type of file.</p>
+  </section>
+
+  <!-- S4: FILE STORAGE -->
+  <section class="sec" id="s4">
+    <div class="sec-eye">04 · Azure File Storage</div>
+    <h2>Azure File Storage</h2>
+
+    <p><strong>Azure File Storage</strong> provides fully managed <em>network file shares</em> in the cloud using the <strong>SMB (Server Message Block)</strong> protocol — the same protocol Windows uses for shared drives on a local network.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Azure File Storage is like a <strong>shared office folder on a company network</strong>. Every computer in the office can access the same folder (Z: drive). Azure File Storage does the same thing — but in the cloud. Multiple VMs and computers can connect to the same shared folder simultaneously.
+    </div>
+
+    <h3>Key Features</h3>
+    <ul>
+      <li>Uses <strong>SMB protocol</strong> — works with Windows, Linux, and macOS</li>
+      <li>Multiple VMs can mount the same file share at the same time</li>
+      <li>Works like a normal folder — copy, paste, move files just like on your computer</li>
+      <li>Can replace on-premises file servers (no need to maintain physical servers)</li>
+      <li>Accessible via Azure Portal, Storage Explorer, or command line</li>
+    </ul>
+
+    <h3>Blob Storage vs Azure Files — Key Difference</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Blob Storage</th><th>Azure Files</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Protocol</strong></td><td>HTTP/HTTPS (REST API)</td><td>SMB (network drive)</td></tr>
+          <tr><td><strong>Access Style</strong></td><td>Application downloads file via URL</td><td>Mounted as a drive letter (Z:\)</td></tr>
+          <tr><td><strong>Use Case</strong></td><td>Websites, apps, backups</td><td>Shared config files, multi-VM access</td></tr>
+          <tr><td><strong>Simultaneous Users</strong></td><td>Many (read via URL)</td><td>Many (mounted as network drive)</td></tr>
+          <tr><td><strong>AWS Equivalent</strong></td><td>Amazon S3</td><td>Amazon EFS (Elastic File System)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <div class="callout-head">Real World Use Case</div>
+      A company has 5 web servers running the same application. The app needs a config file. Instead of copying the config file to each server manually, store it once in Azure File Storage and mount the share on all 5 servers. When you update the config file once, all 5 servers see the change immediately.
+    </div>
+  </section>
+
+  <!-- S5: AZURE TABLES -->
+  <section class="sec" id="s5">
+    <div class="sec-eye">05 · Azure Tables</div>
+    <h2>Azure Table Storage</h2>
+
+    <p><strong>Azure Table Storage</strong> is a <em>NoSQL key-value store</em> for storing structured data. It stores data in rows and columns (like a spreadsheet), but without the complexity of a full SQL database.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Think of Azure Tables as a <strong>giant Excel sheet stored in the cloud</strong>. Each row is an entity (like a student record), and each column is a property (Name, Age, Grade). You can store billions of rows and query them quickly using a key.
+    </div>
+
+    <h3>Key Concepts</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Term</th><th>Meaning</th><th>Analogy</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Table</strong></td><td>A collection of entities</td><td>An Excel sheet</td></tr>
+          <tr><td><strong>Entity</strong></td><td>A single record</td><td>A row in the sheet</td></tr>
+          <tr><td><strong>Property</strong></td><td>A field/column in the entity</td><td>A cell value in a row</td></tr>
+          <tr><td><strong>Partition Key</strong></td><td>Groups related entities together for fast queries</td><td>A category/section</td></tr>
+          <tr><td><strong>Row Key</strong></td><td>Unique ID within a partition</td><td>A roll number</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>When to Use Azure Tables?</h3>
+    <ul>
+      <li>Storing user profiles or preferences</li>
+      <li>Application configuration data</li>
+      <li>Session data for web apps</li>
+      <li>Log data with simple querying needs</li>
+      <li>When you need to store millions of records cheaply without a full SQL database</li>
+    </ul>
+
+    <div class="callout info">
+      <div class="callout-head">Azure Tables vs SQL Database</div>
+      Azure Tables is <strong>NoSQL</strong> — it is faster and cheaper for simple data but cannot do complex JOINs like SQL. Use Azure Tables for simple key-value lookups. Use Azure SQL Database for complex relational data with multiple tables.
+    </div>
+
+    <h3>AWS Equivalent</h3>
+    <p>Azure Table Storage ≈ <strong>Amazon DynamoDB</strong> — both are NoSQL key-value stores for semi-structured data.</p>
+  </section>
+
+  <!-- S6: QUEUE STORAGE -->
+  <section class="sec" id="s6">
+    <div class="sec-eye">06 · Queue Storage</div>
+    <h2>Azure Queue Storage</h2>
+
+    <p><strong>Azure Queue Storage</strong> is a message queue service. It stores messages (small pieces of text or data) that one part of your application sends, and another part reads and processes later.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Imagine a <strong>restaurant kitchen order system</strong>. A waiter takes your order and puts a ticket on the kitchen counter (queue). The chef picks up tickets one by one and prepares the food. The waiter doesn't wait at the kitchen — they can go take more orders. This is exactly what Queue Storage does for applications.
+    </div>
+
+    <h3>Why Do We Need a Message Queue?</h3>
+    <ul>
+      <li><strong>Decoupling</strong> — Part A of your app doesn't need to wait for Part B to finish. It just adds a message to the queue and moves on.</li>
+      <li><strong>Load balancing</strong> — If too many requests come in, they wait in the queue. Workers process them at their own pace.</li>
+      <li><strong>Reliability</strong> — If a worker crashes, the message stays in the queue and another worker picks it up.</li>
+      <li><strong>Async processing</strong> — Handle background tasks (sending emails, resizing images, generating reports) without blocking the main app.</li>
+    </ul>
+
+    <h3>How Queue Works (Step by Step)</h3>
+    <ol>
+      <li>User uploads a photo on a website</li>
+      <li>Web app adds a message to the queue: "Resize photo X"</li>
+      <li>Web app responds to user immediately: "Upload successful!"</li>
+      <li>A background worker reads the message from the queue</li>
+      <li>Worker resizes the photo and saves it</li>
+      <li>Worker deletes the message from the queue (job done)</li>
+    </ol>
+
+    <div class="callout tip">
+      <div class="callout-head">Key Facts</div>
+      • Maximum message size: <strong>64 KB</strong><br>
+      • Maximum queue size: <strong>500 TB</strong><br>
+      • Message expiry (default): <strong>7 days</strong><br>
+      • A message can be locked (invisible) while a worker processes it — if the worker fails, the lock expires and another worker gets the message
+    </div>
+
+    <h3>AWS Equivalent</h3>
+    <p>Azure Queue Storage = <strong>Amazon SQS (Simple Queue Service)</strong> — both are managed message queue services for async communication between application components.</p>
+  </section>
+
+  <!-- S7: REDUNDANCY -->
+  <section class="sec" id="s7">
+    <div class="sec-eye">07 · Redundancy</div>
+    <h2>Storage Redundancy Types</h2>
+
+    <p>Azure automatically keeps <strong>multiple copies</strong> of your data to protect against hardware failures. The type of redundancy determines <em>where</em> and <em>how many copies</em> are kept.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      Redundancy is like making photocopies of important documents. LRS = 3 copies in the same building. GRS = 3 copies in Delhi + 3 copies in Mumbai (in case Delhi floods). More copies = more safety = more cost.
+    </div>
+
+    <div class="redun-grid">
+      <div class="redun">
+        <span class="redun-tag">LRS</span>
+        <h5>Locally Redundant Storage</h5>
+        <p>3 copies within one datacenter in one region. Cheapest option.</p>
+        <div class="redun-copies">
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+        </div>
+      </div>
+      <div class="redun">
+        <span class="redun-tag">ZRS</span>
+        <h5>Zone Redundant Storage</h5>
+        <p>3 copies across 3 different Availability Zones in one region.</p>
+        <div class="redun-copies">
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+        </div>
+      </div>
+      <div class="redun">
+        <span class="redun-tag">GRS</span>
+        <h5>Geo-Redundant Storage</h5>
+        <p>3 copies in primary region + 3 copies in a paired secondary region (e.g., India South).</p>
+        <div class="redun-copies">
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot remote active"></div>
+          <div class="copy-dot remote active"></div>
+          <div class="copy-dot remote active"></div>
+        </div>
+      </div>
+      <div class="redun">
+        <span class="redun-tag">GZRS</span>
+        <h5>Geo-Zone Redundant</h5>
+        <p>3 copies across zones in primary region + 3 copies in paired region. Maximum protection.</p>
+        <div class="redun-copies">
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div>
+          <div class="copy-dot remote active"></div>
+          <div class="copy-dot remote active"></div>
+          <div class="copy-dot remote active"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Copies</th><th>Survives</th><th>Cost</th><th>Exam Tip</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LRS</strong></td><td>3</td><td>Single disk/rack failure</td><td>Cheapest</td><td>Dev/test workloads</td></tr>
+          <tr><td><strong>ZRS</strong></td><td>3</td><td>Zone outage</td><td>Medium</td><td>High availability in one region</td></tr>
+          <tr><td><strong>GRS</strong></td><td>6</td><td>Region-wide disaster</td><td>Higher</td><td>Business critical data</td></tr>
+          <tr><td><strong>GZRS</strong></td><td>6</td><td>Zone + Region failure</td><td>Highest</td><td>Maximum durability</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S8: WHEN TO USE -->
+  <section class="sec" id="s8">
+    <div class="sec-eye">08 · Decision Guide</div>
+    <h2>When to Use Which Storage Type?</h2>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Scenario</th><th>Use This</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Store profile pictures for a website</td><td>Blob Storage</td><td>Images served via URL</td></tr>
+          <tr><td>Store database backup files</td><td>Blob Storage (Archive tier)</td><td>Large files, rarely accessed</td></tr>
+          <tr><td>Multiple VMs need to share config files</td><td>Azure Files</td><td>SMB share, like a network drive</td></tr>
+          <tr><td>Application logs (append only)</td><td>Blob → Append Blob</td><td>Only appending, never overwriting</td></tr>
+          <tr><td>Store user preferences / session data</td><td>Azure Tables</td><td>Simple key-value, NoSQL, cheap</td></tr>
+          <tr><td>Send tasks between app components</td><td>Queue Storage</td><td>Async, decoupled processing</td></tr>
+          <tr><td>Video streaming / large media files</td><td>Blob Storage + CDN</td><td>Files + fast delivery</td></tr>
+          <tr><td>VM disk (OS or data disk)</td><td>Blob → Page Blob</td><td>VHD files are page blobs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S9: AWS COMPARISON -->
+  <section class="sec" id="s9">
+    <div class="sec-eye">09 · AWS Comparison</div>
+    <h2>Azure Storage vs AWS Equivalents</h2>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Azure Service</th><th>AWS Equivalent</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Blob Storage</strong></td><td>Amazon S3</td><td>Object / file storage</td></tr>
+          <tr><td><strong>Azure Files</strong></td><td>Amazon EFS</td><td>Managed network file share</td></tr>
+          <tr><td><strong>Azure Tables</strong></td><td>Amazon DynamoDB</td><td>NoSQL key-value store</td></tr>
+          <tr><td><strong>Queue Storage</strong></td><td>Amazon SQS</td><td>Message queue for async tasks</td></tr>
+          <tr><td><strong>Storage Account</strong></td><td>AWS S3 Bucket (partially)</td><td>Container for all storage</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="callout-head">Why Compare with AWS?</div>
+      As a cloud professional, you may work with both Azure and AWS. Knowing equivalents helps you switch between clouds quickly and also impresses interviewers.
+    </div>
+  </section>
+
+  <!-- S10: SUMMARY -->
+  <section class="sec" id="s10">
+    <div class="sec-eye">10 · Summary</div>
+    <h2>Chapter Summary</h2>
+
+    <div class="summary">
+      <h4>Key Points to Remember</h4>
+      <ul>
+        <li>Azure Storage has 4 types: <strong>Blob, Files, Tables, Queue</strong></li>
+        <li>A <strong>Storage Account</strong> must be created first — it holds all storage types</li>
+        <li>Storage Account name is <strong>globally unique</strong> and becomes part of the URL</li>
+        <li><strong>Blob Storage</strong> = any file (images, videos, backups) — accessed via URL — like S3</li>
+        <li><strong>Azure Files</strong> = shared network drive using SMB — like EFS</li>
+        <li><strong>Azure Tables</strong> = NoSQL key-value store — like DynamoDB</li>
+        <li><strong>Queue Storage</strong> = messages between apps (async) — like SQS</li>
+        <li><strong>Access Tiers</strong>: Hot → Cool → Cold → Archive (cost vs access speed tradeoff)</li>
+        <li><strong>SAS Token</strong> = temporary access URL for private blobs with expiry time</li>
+        <li><strong>Redundancy</strong>: LRS (cheap) → ZRS → GRS → GZRS (most protected)</li>
+        <li><strong>Deny-by-default</strong>: Blob containers are Private by default</li>
+      </ul>
+    </div>
+
+    <h3>What's Next?</h3>
+    <p>After storage, the next topic is <strong>Module 5: Virtual Networks (VNet)</strong> — where you will learn how to create private networks in Azure, set up subnets, configure DNS, NSGs, and connect your VMs and storage securely.</p>
+  </section>
+
+  <footer class="foot">
+    <b>IIMT College · Azure Administration (AZ-104) · 3rd Semester</b><br>
+    Module 4 — Azure Storage Theory Notes · Day-09
+  </footer>
+
+</div>

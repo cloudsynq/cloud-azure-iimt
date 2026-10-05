@@ -1,0 +1,710 @@
+<title>Azure Storage Lab</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg:       #070F1A;
+    --surface:  #0D1B2E;
+    --surf2:    #132338;
+    --surf3:    #1A2E48;
+    --text:     #E2EEFF;
+    --muted:    #7A9BBE;
+    --light:    #4A6A8A;
+    --accent:   #0078D4;
+    --acc2:     #60B8FF;
+    --acc3:     #DDEEFF;
+    --green:    #6CCB5F;
+    --green-bg: #0D2B10;
+    --orange:   #F7A850;
+    --orng-bg:  #251500;
+    --purple:   #C2A7F0;
+    --purp-bg:  #1A0A35;
+    --border:   #1E3050;
+    --shadow:   0 4px 24px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.6;
+    padding-inline: 16px;
+  }
+
+  /* ── LAYOUT ── */
+  .wrap { max-width: 960px; margin: 0 auto; padding-block: 32px 80px; }
+
+  /* ── HEADER ── */
+  .pres-header {
+    background: linear-gradient(135deg, #001830 0%, #003366 50%, #0050AA 100%);
+    border-radius: 20px;
+    padding: 48px 48px 40px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #1A4080;
+  }
+  .pres-header::before {
+    content:'';
+    position:absolute; top:-60px; right:-60px;
+    width:300px; height:300px; border-radius:50%;
+    background:radial-gradient(circle,rgba(0,120,212,.25) 0%,transparent 70%);
+  }
+  .pres-header::after {
+    content:'';
+    position:absolute; bottom:-40px; left:-40px;
+    width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle,rgba(96,184,255,.12) 0%,transparent 70%);
+  }
+  .lab-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(0,120,212,.3); border:1px solid rgba(96,184,255,.4);
+    border-radius:100px; padding:6px 16px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; font-weight:600; letter-spacing:.08em;
+    color:var(--acc2); margin-bottom:20px; text-transform:uppercase;
+  }
+  .pres-header h1 {
+    font-family:'Outfit',sans-serif;
+    font-size:2.6rem; font-weight:900;
+    line-height:1.1; text-wrap:balance;
+    color:#FFF; margin-bottom:12px;
+  }
+  .pres-header h1 span { color:var(--acc2); }
+  .pres-header p {
+    font-size:1.05rem; color:rgba(255,255,255,.7);
+    margin-bottom:24px; max-width:520px;
+  }
+  .agenda-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .chip {
+    background:rgba(255,255,255,.1);
+    border:1px solid rgba(255,255,255,.15);
+    color:rgba(255,255,255,.85);
+    border-radius:100px; padding:5px 14px;
+    font-size:12px; font-weight:500;
+  }
+  .chip.done { background:rgba(108,203,95,.15); border-color:rgba(108,203,95,.3); color:var(--green); }
+
+  /* ── SECTION DIVIDER ── */
+  .divider {
+    display:flex; align-items:center; gap:12px;
+    margin:36px 0 20px;
+  }
+  .divider-line { flex:1; height:1px; background:var(--border); }
+  .divider-label {
+    font-family:'Outfit',sans-serif; font-weight:700;
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--muted); white-space:nowrap;
+  }
+
+  /* ── STEP CARDS ── */
+  .step {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    margin-bottom:16px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .step-head {
+    display:flex; align-items:center; gap:16px;
+    padding:20px 24px;
+    border-bottom:1px solid var(--border);
+    background:var(--surf2);
+  }
+  .step-num {
+    flex-shrink:0;
+    width:42px; height:42px;
+    background:linear-gradient(135deg,var(--accent),#005AAA);
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Outfit',sans-serif; font-weight:800; font-size:1rem;
+    color:#FFF; box-shadow:0 2px 8px rgba(0,120,212,.4);
+  }
+  .step-title {
+    font-family:'Outfit',sans-serif; font-weight:700; font-size:1.1rem;
+    color:var(--text);
+  }
+  .step-subtitle { font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .step-body { padding:24px; }
+
+  /* ── INSTRUCTION LIST ── */
+  .inst-list { list-style:none; display:flex; flex-direction:column; gap:12px; }
+  .inst-list li {
+    display:flex; align-items:flex-start; gap:14px;
+    background:var(--surf2); border-radius:10px;
+    padding:13px 16px; font-size:14px;
+  }
+  .inst-num {
+    flex-shrink:0;
+    width:24px; height:24px;
+    background:var(--accent); border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-size:11px;
+    font-weight:700; color:#FFF;
+  }
+  .inst-list li b { color:var(--acc2); }
+  .click-path {
+    background:var(--surf3); border:1px solid var(--border);
+    border-radius:8px; padding:8px 14px;
+    font-family:'JetBrains Mono',monospace; font-size:12.5px;
+    color:var(--acc2); margin-top:8px; display:block;
+    overflow-x:auto; white-space:nowrap;
+  }
+  .click-path .arrow { color:var(--muted); margin:0 4px; }
+
+  /* ── CODE BLOCK ── */
+  .code {
+    background:#040D18; border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; margin:14px 0;
+  }
+  .code-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 16px;
+    background:var(--surf3); border-bottom:1px solid var(--border);
+  }
+  .code-lang {
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px; font-weight:600;
+    color:var(--accent); letter-spacing:.06em; text-transform:uppercase;
+  }
+  .code pre {
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px; line-height:1.7; color:#C9D8E8;
+    padding:16px 20px; overflow-x:auto;
+  }
+  .c-cmd  { color:#60B8FF; }
+  .c-arg  { color:#F7A850; }
+  .c-str  { color:#A5D6FF; }
+  .c-cmt  { color:#4A6A8A; font-style:italic; }
+
+  /* ── CALLOUT ── */
+  .box {
+    border-radius:10px; padding:16px 18px;
+    margin:16px 0; border-left:4px solid; font-size:13.5px;
+  }
+  .box-head {
+    font-family:'Outfit',sans-serif; font-weight:700;
+    font-size:12px; letter-spacing:.05em;
+    text-transform:uppercase; margin-bottom:6px;
+  }
+  .box.info   { background:rgba(0,120,212,.12); border-color:var(--accent); }
+  .box.info .box-head   { color:var(--acc2); }
+  .box.tip    { background:var(--green-bg); border-color:var(--green); }
+  .box.tip .box-head    { color:var(--green); }
+  .box.warn   { background:var(--orng-bg); border-color:var(--orange); }
+  .box.warn .box-head   { color:var(--orange); }
+  .box.result { background:rgba(108,203,95,.08); border-color:var(--green); }
+  .box.result .box-head { color:var(--green); }
+
+  /* ── CONCEPT GRID ── */
+  .concept-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:14px 0; }
+  .concept {
+    background:var(--surf2); border:1px solid var(--border);
+    border-radius:12px; padding:18px 16px;
+  }
+  .concept-icon { font-size:1.8rem; margin-bottom:8px; display:block; }
+  .concept h4 { font-family:'Outfit',sans-serif; font-size:.88rem; font-weight:700; color:var(--text); margin-bottom:4px; }
+  .concept p  { font-size:12px; color:var(--muted); line-height:1.4; margin:0; }
+
+  /* ── TABLE ── */
+  .tbl-wrap { overflow-x:auto; margin:14px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th {
+    background:var(--surf3); color:var(--acc2);
+    font-family:'Outfit',sans-serif; font-weight:600;
+    font-size:11.5px; letter-spacing:.04em; text-align:left;
+    padding:10px 14px; border-bottom:1px solid var(--border);
+  }
+  td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--text); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:var(--surf2); }
+
+  /* ── SUMMARY / QUIZ ── */
+  .summary-card {
+    background:linear-gradient(135deg,#001830,#003060);
+    border:1px solid #1A4080; border-radius:16px;
+    padding:32px; margin-top:28px;
+  }
+  .summary-card h3 {
+    font-family:'Outfit',sans-serif; font-weight:800;
+    font-size:1.2rem; color:#FFF; margin-bottom:20px;
+  }
+  .quiz-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+  .quiz-item {
+    display:flex; align-items:flex-start; gap:12px;
+    background:rgba(255,255,255,.06); border-radius:10px;
+    padding:13px 16px; font-size:13.5px;
+  }
+  .q-icon { flex-shrink:0; font-size:1.1rem; }
+
+  /* ── FOOTER ── */
+  .foot {
+    text-align:center; padding-top:28px; margin-top:8px;
+    border-top:1px solid var(--border);
+    color:var(--muted); font-size:12px;
+  }
+  .foot b { color:var(--acc2); }
+
+  @media (max-width:600px) {
+    .step-body { padding:16px; }
+    .pres-header { padding:28px 20px; }
+    .pres-header h1 { font-size:1.7rem; }
+    .concept-grid { grid-template-columns:1fr 1fr; }
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header class="pres-header">
+    <div class="lab-badge">🔬 Hands-On Lab · Module 4</div>
+    <h1>Azure <span>Storage</span><br>Lab Presentation</h1>
+    <p>Step-by-step practical guide for IIMT students. By the end of this lab, you will have created and used all 4 Azure Storage types.</p>
+    <div class="agenda-chips">
+      <span class="chip">Lab 1: Storage Account</span>
+      <span class="chip">Lab 2: Blob Storage</span>
+      <span class="chip">Lab 3: SAS Token</span>
+      <span class="chip">Lab 4: Azure File Share</span>
+      <span class="chip">Lab 5: Mount on VM</span>
+    </div>
+  </header>
+
+  <!-- PRE-REQUISITES -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Before You Start</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">✓</div>
+      <div>
+        <div class="step-title">Prerequisites</div>
+        <div class="step-subtitle">Make sure these are ready before starting</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="concept-grid">
+        <div class="concept">
+          <span class="concept-icon">🌐</span>
+          <h4>Azure Account</h4>
+          <p>Free Azure account or student subscription. Portal: portal.azure.com</p>
+        </div>
+        <div class="concept">
+          <span class="concept-icon">📦</span>
+          <h4>Resource Group</h4>
+          <p>An existing Resource Group. We'll create storage inside it.</p>
+        </div>
+        <div class="concept">
+          <span class="concept-icon">🖥️</span>
+          <h4>A Running VM</h4>
+          <p>For Lab 5 — an existing Windows or Linux VM to mount the file share.</p>
+        </div>
+        <div class="concept">
+          <span class="concept-icon">📄</span>
+          <h4>A Test File</h4>
+          <p>Any image, PDF, or text file on your laptop to upload in Lab 2.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB 1: STORAGE ACCOUNT -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Lab 1 of 5</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Create a Storage Account</div>
+        <div class="step-subtitle">The foundation — everything lives inside this</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="box info">
+        <div class="box-head">What We Are Doing</div>
+        Creating a Storage Account is like opening a new bank account. Without it, you cannot store anything in Azure Storage.
+      </div>
+
+      <ul class="inst-list">
+        <li>
+          <span class="inst-num">1</span>
+          <div>Open the Azure Portal and log in<br>
+            <span class="click-path">portal.azure.com <span class="arrow">→</span> Sign in</span>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">2</span>
+          <div>Search for <b>Storage accounts</b> in the top search bar<br>
+            <span class="click-path">Search bar <span class="arrow">→</span> "storage accounts" <span class="arrow">→</span> Click first result</span>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">3</span>
+          <div>Click <b>+ Create</b> to start creating a new storage account</div>
+        </li>
+        <li>
+          <span class="inst-num">4</span>
+          <div>Fill in the <b>Basics</b> tab:
+            <div class="code"><div class="code-bar"><span class="code-lang">Settings</span></div>
+              <pre>Resource Group   : [select your existing group]
+Storage name     : <span class="c-str">iimt2026storage</span>  <span class="c-cmt"># must be lowercase, globally unique</span>
+Region           : <span class="c-arg">Central India</span>
+Performance      : <span class="c-arg">Standard</span>
+Redundancy       : <span class="c-arg">LRS</span>  <span class="c-cmt"># cheapest, fine for practice</span></pre>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">5</span>
+          <div>Click <b>Review + Create</b> → then <b>Create</b><br>Wait ~30 seconds for deployment to complete</div>
+        </li>
+        <li>
+          <span class="inst-num">6</span>
+          <div>Click <b>Go to resource</b> once deployment is done — this opens your Storage Account</div>
+        </li>
+      </ul>
+
+      <div class="box result">
+        <div class="box-head">Expected Result</div>
+        You should see the Storage Account overview page. The URL will be: <code>https://iimt2026storage.blob.core.windows.net</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB 2: BLOB STORAGE -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Lab 2 of 5</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Blob Storage — Upload a File</div>
+        <div class="step-subtitle">Create a container and upload a file — access via URL</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="box info">
+        <div class="box-head">What We Are Doing</div>
+        We will create a Blob Container (like a folder) and upload a file. Then we'll see what happens when we try to open the file's URL without permission.
+      </div>
+
+      <ul class="inst-list">
+        <li>
+          <span class="inst-num">1</span>
+          <div>Inside your Storage Account → Left menu → <b>Containers</b><br>
+            <span class="click-path">Storage Account <span class="arrow">→</span> Data storage <span class="arrow">→</span> Containers</span>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">2</span>
+          <div>Click <b>+ Container</b> to create a new container<br>
+            Set <b>Name</b>: <code>student-files</code><br>
+            Set <b>Public access level</b>: <b>Private (no anonymous access)</b><br>
+            Click <b>Create</b>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">3</span>
+          <div>Click on the container <b>student-files</b> → Click <b>Upload</b></div>
+        </li>
+        <li>
+          <span class="inst-num">4</span>
+          <div>Upload any file from your laptop (image, PDF, etc.) → Click <b>Upload</b></div>
+        </li>
+        <li>
+          <span class="inst-num">5</span>
+          <div>Click on the uploaded file → Click <b>Copy URL</b></div>
+        </li>
+        <li>
+          <span class="inst-num">6</span>
+          <div>Paste the URL in a <b>new browser tab</b> and press Enter<br>
+            You should get a <b>403 ResourceNotFound</b> error — this is correct! The container is Private.
+          </div>
+        </li>
+      </ul>
+
+      <div class="box warn">
+        <div class="box-head">Why 403 Error?</div>
+        The container is set to <strong>Private</strong>. No one can access blobs without authorization. This is the correct and secure default. In the next lab we will generate a temporary URL (SAS Token) to share the file.
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB 3: SAS TOKEN -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Lab 3 of 5</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Generate a SAS Token</div>
+        <div class="step-subtitle">Create a temporary URL that expires — share files safely</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="box info">
+        <div class="box-head">What We Are Doing</div>
+        SAS = Shared Access Signature. It generates a special URL with a secret key and expiry time. After the time expires, the URL stops working — perfect for temporary sharing.
+      </div>
+
+      <ul class="inst-list">
+        <li>
+          <span class="inst-num">1</span>
+          <div>Click on the uploaded file inside <b>student-files</b> container</div>
+        </li>
+        <li>
+          <span class="inst-num">2</span>
+          <div>Click <b>Generate SAS</b> tab (in the top menu of the file)</div>
+        </li>
+        <li>
+          <span class="inst-num">3</span>
+          <div>Fill in SAS settings:
+            <div class="code"><div class="code-bar"><span class="code-lang">SAS Settings</span></div>
+              <pre>Signing method    : <span class="c-arg">Account key</span>
+Permissions       : <span class="c-arg">Read</span>  <span class="c-cmt"># only read, not write or delete</span>
+Start time        : <span class="c-str">Now (default)</span>
+Expiry time       : <span class="c-str">+2 hours from now</span>
+Allowed protocols : <span class="c-arg">HTTPS only</span></pre>
+            </div>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">4</span>
+          <div>Click <b>Generate SAS token and URL</b></div>
+        </li>
+        <li>
+          <span class="inst-num">5</span>
+          <div>Copy the <b>Blob SAS URL</b> (the full URL with the <code>?sv=...</code> part)</div>
+        </li>
+        <li>
+          <span class="inst-num">6</span>
+          <div>Paste this URL in a new browser tab — the file should now <b>open/download successfully!</b></div>
+        </li>
+      </ul>
+
+      <div class="box tip">
+        <div class="box-head">Show Students This</div>
+        Wait for the expiry time to pass (or set it to 1 minute for demo). Try the URL again after expiry — it will give a 403 error again. This shows how SAS Token provides time-limited, secure access.
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB 4: FILE SHARE -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Lab 4 of 5</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Create Azure File Share</div>
+        <div class="step-subtitle">A shared network folder in the cloud (SMB)</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="box info">
+        <div class="box-head">What We Are Doing</div>
+        We will create a File Share — a shared drive that multiple VMs can access simultaneously, like a company's common Z: drive.
+      </div>
+
+      <ul class="inst-list">
+        <li>
+          <span class="inst-num">1</span>
+          <div>Go back to your Storage Account → Left menu → <b>File shares</b><br>
+            <span class="click-path">Storage Account <span class="arrow">→</span> Data storage <span class="arrow">→</span> File shares</span>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">2</span>
+          <div>Click <b>+ File share</b><br>
+            <b>Name</b>: <code>classshare</code><br>
+            <b>Tier</b>: Transaction optimized<br>
+            Click <b>Create</b>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">3</span>
+          <div>Click on <b>classshare</b> → Click <b>Upload</b> → Upload any file from your laptop</div>
+        </li>
+        <li>
+          <span class="inst-num">4</span>
+          <div>Click <b>Connect</b> (top menu) → Select <b>Windows</b> tab<br>
+            You will see a PowerShell script that mounts this share as a drive on Windows.
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">5</span>
+          <div>Copy the PowerShell script — it looks like this:
+            <div class="code"><div class="code-bar"><span class="code-lang">PowerShell</span></div>
+              <pre><span class="c-cmd">$connectTestResult</span> = <span class="c-cmd">Test-NetConnection</span> <span class="c-str">-ComputerName</span> iimt2026storage.file.core.windows.net <span class="c-str">-Port</span> <span class="c-arg">445</span>
+<span class="c-cmd">if</span> (<span class="c-cmd">$connectTestResult</span>.TcpTestSucceeded) {
+    <span class="c-cmt"># Mount drive</span>
+    <span class="c-cmd">cmd</span> /c <span class="c-str">"net use Z: \\iimt2026storage.file.core.windows.net\classshare /u:AZURE\iimt2026storage [storage-key]"</span>
+}</pre>
+            </div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="box result">
+        <div class="box-head">Expected Result</div>
+        After creating, you should see <strong>classshare</strong> listed under File shares. In the next lab, we mount this on a VM.
+      </div>
+    </div>
+  </div>
+
+  <!-- LAB 5: MOUNT ON VM -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Lab 5 of 5</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">Mount File Share on a Windows VM</div>
+        <div class="step-subtitle">Connect the cloud drive as Z: inside a virtual machine</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="box info">
+        <div class="box-head">What We Are Doing</div>
+        We will RDP into a Windows VM and run the PowerShell script from Lab 4 to mount the Azure File Share as a Z: drive inside the VM.
+      </div>
+
+      <ul class="inst-list">
+        <li>
+          <span class="inst-num">1</span>
+          <div>Go to your Windows VM → Click <b>Connect</b> → <b>RDP</b><br>
+            Download the .rdp file and open it → Log in with your VM credentials
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">2</span>
+          <div>Inside the VM → Open <b>PowerShell as Administrator</b><br>
+            <span class="click-path">Start <span class="arrow">→</span> Right-click PowerShell <span class="arrow">→</span> Run as Administrator</span>
+          </div>
+        </li>
+        <li>
+          <span class="inst-num">3</span>
+          <div>Paste and run the PowerShell script you copied from Lab 4, Step 5</div>
+        </li>
+        <li>
+          <span class="inst-num">4</span>
+          <div>Open <b>File Explorer</b> → Look under <b>This PC</b> → You should see a <b>Z: drive</b>!</div>
+        </li>
+        <li>
+          <span class="inst-num">5</span>
+          <div>Open the Z: drive → You will see the file you uploaded in Lab 4 → Open it<br>
+            Now try copying a new file into Z: — it appears in Azure Portal too!
+          </div>
+        </li>
+      </ul>
+
+      <div class="box tip">
+        <div class="box-head">Classroom Demo Tip</div>
+        Open the Azure Portal and the Z: drive side by side on screen. Upload a file to Z: from the VM — refresh the portal — students will see it appear in real time. This demonstrates that the Z: drive IS the Azure cloud storage.
+      </div>
+
+      <div class="box result">
+        <div class="box-head">What You Proved</div>
+        ✅ Azure File Share works exactly like a local network drive<br>
+        ✅ Any file saved to Z: is instantly stored in Azure cloud<br>
+        ✅ Multiple VMs in the same region can mount the same share
+      </div>
+    </div>
+  </div>
+
+  <!-- CONCEPT RECAP -->
+  <div class="divider"><div class="divider-line"></div><div class="divider-label">Concept Recap</div><div class="divider-line"></div></div>
+
+  <div class="step">
+    <div class="step-head">
+      <div class="step-num">📋</div>
+      <div>
+        <div class="step-title">Quick Reference Table</div>
+        <div class="step-subtitle">All 4 storage types — when to use which</div>
+      </div>
+    </div>
+    <div class="step-body">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Storage Type</th>
+              <th>Protocol</th>
+              <th>Best For</th>
+              <th>AWS Equivalent</th>
+              <th>Access</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#60B8FF">Blob Storage</strong></td>
+              <td>HTTP/HTTPS</td>
+              <td>Files, images, videos, backups</td>
+              <td>Amazon S3</td>
+              <td>URL / SAS Token</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#6CCB5F">Azure Files</strong></td>
+              <td>SMB / NFS</td>
+              <td>Shared drives between VMs</td>
+              <td>Amazon EFS</td>
+              <td>Mounted as network drive</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#C2A7F0">Azure Tables</strong></td>
+              <td>HTTP REST</td>
+              <td>Key-value NoSQL data</td>
+              <td>Amazon DynamoDB</td>
+              <td>API / SDK</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#F7A850">Queue Storage</strong></td>
+              <td>HTTP REST</td>
+              <td>Messages between app parts</td>
+              <td>Amazon SQS</td>
+              <td>API / SDK</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ / SUMMARY -->
+  <div class="summary-card">
+    <h3>🎯 Check Your Understanding — Ask Students These</h3>
+    <ul class="quiz-list">
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>What is the difference between a <strong>Blob Container</strong> and a <strong>File Share</strong>? When would you use each?</div>
+      </li>
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>You got a <strong>403 error</strong> when opening a Blob URL. What does this mean, and how do you fix it?</div>
+      </li>
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>What is a <strong>SAS Token</strong>? Give a real-world scenario where you would use one.</div>
+      </li>
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>What does <strong>LRS</strong> stand for, and how many copies does Azure keep with LRS?</div>
+      </li>
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>Name the <strong>AWS equivalent</strong> of Azure Blob Storage and Azure Files.</div>
+      </li>
+      <li class="quiz-item">
+        <span class="q-icon">❓</span>
+        <div>Your company stores employee photos for an HR website. Which storage tier (Hot/Cool/Archive) should you use and why?</div>
+      </li>
+    </ul>
+  </div>
+
+  <footer class="foot" style="margin-top:32px;">
+    <b>IIMT College · Azure Administration (AZ-104) · 3rd Semester</b><br>
+    Module 4 — Azure Storage Lab Presentation · Day-09
+  </footer>
+
+</div>
