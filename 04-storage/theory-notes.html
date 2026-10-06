@@ -1,4 +1,9 @@
-<title>Azure Storage Theory Notes</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Storage — Complete Theory Notes</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
   :root {
@@ -22,6 +27,8 @@
     --red-bg:      #FDE7E9;
     --purple:      #5C2D91;
     --purple-bg:   #EDE7F6;
+    --teal:        #00827C;
+    --teal-bg:     #D7F5F3;
     --shadow:      0 2px 8px rgba(0,120,212,.08), 0 1px 2px rgba(0,0,0,.04);
     color-scheme: light;
   }
@@ -47,33 +54,21 @@
       --red-bg:      #250A0C;
       --purple:      #C2A7F0;
       --purple-bg:   #1A0A35;
+      --teal:        #4DCFC9;
+      --teal-bg:     #082220;
       --shadow:      0 2px 8px rgba(0,0,0,.4);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg:          #07111F;
-    --surface:     #0D1F35;
-    --surface-2:   #132840;
-    --text:        #D8E8F8;
-    --text-muted:  #7A9BBE;
-    --text-light:  #4A6A8E;
-    --accent:      #4BA3E8;
-    --accent-light:#0A2040;
-    --accent-dark: #79BFF5;
-    --azure-dark:  #061428;
-    --border:      #1A3050;
-    --border-light:#0F2030;
-    --green:       #6CCB5F;
-    --green-bg:    #0A2510;
-    --orange:      #F7A850;
-    --orange-bg:   #251500;
-    --red:         #F1707A;
-    --red-bg:      #250A0C;
-    --purple:      #C2A7F0;
-    --purple-bg:   #1A0A35;
-    --shadow:      0 2px 8px rgba(0,0,0,.4);
-    color-scheme: dark;
+    --bg:#07111F;--surface:#0D1F35;--surface-2:#132840;
+    --text:#D8E8F8;--text-muted:#7A9BBE;--text-light:#4A6A8E;
+    --accent:#4BA3E8;--accent-light:#0A2040;--accent-dark:#79BFF5;
+    --azure-dark:#061428;--border:#1A3050;--border-light:#0F2030;
+    --green:#6CCB5F;--green-bg:#0A2510;--orange:#F7A850;--orange-bg:#251500;
+    --red:#F1707A;--red-bg:#250A0C;--purple:#C2A7F0;--purple-bg:#1A0A35;
+    --teal:#4DCFC9;--teal-bg:#082220;
+    --shadow:0 2px 8px rgba(0,0,0,.4);color-scheme:dark;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; }
   body {
@@ -125,6 +120,31 @@
   }
   .pill b { color:#60B8FF; }
 
+  /* STORAGE CATEGORY BANNER */
+  .cat-banner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .cat-card {
+    border-radius: 12px;
+    padding: 18px 16px;
+    border: 2px solid;
+    text-align: center;
+  }
+  .cat-card.obj  { border-color:#0078D4; background: var(--accent-light); }
+  .cat-card.file { border-color:#107C10; background: var(--green-bg); }
+  .cat-card.blk  { border-color:#5C2D91; background: var(--purple-bg); }
+  .cat-card .cat-icon { font-size: 2rem; display:block; margin-bottom:6px; }
+  .cat-card h4 {
+    font-family:'Outfit',sans-serif; font-weight:800;
+    font-size:.85rem; margin-bottom:3px;
+    color: var(--text);
+  }
+  .cat-card p { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
+  .cat-card .aws { font-size:11px; color:var(--orange); font-weight:600; margin-top:4px; font-family:'JetBrains Mono',monospace; }
+
   /* TOC */
   .toc {
     background:var(--surface); border:1px solid var(--border);
@@ -139,7 +159,7 @@
   }
   .toc-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(200px,1fr));
+    grid-template-columns:repeat(auto-fill, minmax(220px,1fr));
     gap:6px;
   }
   .toc-grid a {
@@ -154,6 +174,12 @@
     font-size:10.5px; font-weight:600;
     color:var(--accent); background:var(--accent-light);
     border-radius:5px; padding:2px 7px; flex-shrink:0;
+  }
+  .toc-new {
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px; font-weight:700;
+    color:#FFF; background:var(--orange);
+    border-radius:4px; padding:2px 5px; flex-shrink:0;
   }
 
   /* SECTION */
@@ -202,6 +228,51 @@
     color:var(--orange); margin-bottom:6px;
   }
 
+  /* REAL COMPANY SCENARIO BOX */
+  .scenario {
+    background:var(--teal-bg);
+    border-left:4px solid var(--teal);
+    border-radius:0 10px 10px 0;
+    padding:18px 20px; margin:18px 0;
+    font-size:14px;
+  }
+  .scenario-head {
+    font-family:'Outfit',sans-serif;
+    font-weight:700; font-size:12px;
+    letter-spacing:.05em; text-transform:uppercase;
+    color:var(--teal); margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .scenario p { margin-bottom:8px; }
+  .scenario p:last-child { margin-bottom:0; }
+  .scenario strong { color:var(--text); }
+
+  /* DISK TYPE CARDS */
+  .disk-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; margin:18px 0; }
+  .disk-card {
+    border-radius:12px; padding:18px 16px;
+    border-left:4px solid;
+  }
+  .disk-card.ultra  { border-color:#A4262C; background:var(--red-bg); }
+  .disk-card.pssd2  { border-color:#5C2D91; background:var(--purple-bg); }
+  .disk-card.pssd   { border-color:#0078D4; background:var(--accent-light); }
+  .disk-card.sssd   { border-color:#107C10; background:var(--green-bg); }
+  .disk-card.shdd   { border-color:#4A6080; background:var(--surface-2); }
+  .disk-tag {
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px; font-weight:700;
+    display:inline-block; margin-bottom:8px;
+  }
+  .disk-card.ultra  .disk-tag { color:#A4262C; }
+  .disk-card.pssd2  .disk-tag { color:#5C2D91; }
+  .disk-card.pssd   .disk-tag { color:#0078D4; }
+  .disk-card.sssd   .disk-tag { color:#107C10; }
+  .disk-card.shdd   .disk-tag { color:#4A6080; }
+  .disk-card h4 { font-family:'Outfit',sans-serif; font-weight:700; font-size:.9rem; margin-bottom:4px; }
+  .disk-card .spec { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); margin:4px 0 6px; }
+  .disk-card p { font-size:12.5px; color:var(--text-muted); margin:0; line-height:1.45; }
+  .disk-card .use { font-size:12px; color:var(--green); font-weight:600; margin-top:6px; }
+
   /* STORAGE TYPE CARDS */
   .stype-grid {
     display:grid;
@@ -213,9 +284,10 @@
     border:1.5px solid var(--border);
   }
   .stype.blob   { border-color:#0078D4; background:var(--accent-light); }
+  .stype.disks  { border-color:#5C2D91; background:var(--purple-bg); }
   .stype.files  { border-color:#107C10; background:var(--green-bg); }
-  .stype.tables { border-color:#5C2D91; background:var(--purple-bg); }
-  .stype.queue  { border-color:#C55A11; background:var(--orange-bg); }
+  .stype.tables { border-color:#C55A11; background:var(--orange-bg); }
+  .stype.queue  { border-color:#00827C; background:var(--teal-bg); }
   .stype-icon { font-size:2rem; margin-bottom:10px; display:block; }
   .stype h4 {
     font-family:'Outfit',sans-serif;
@@ -240,6 +312,8 @@
   .callout.tip .callout-head { color:var(--green); }
   .callout.warn  { background:var(--orange-bg); border-color:var(--orange); }
   .callout.warn .callout-head { color:var(--orange); }
+  .callout.purple { background:var(--purple-bg); border-color:var(--purple); }
+  .callout.purple .callout-head { color:var(--purple); }
 
   /* TABLE */
   .tbl-wrap { overflow-x:auto; margin:18px 0; }
@@ -268,15 +342,22 @@
   }
   .redun h5 { font-family:'Outfit',sans-serif; font-size:.85rem; font-weight:600; color:var(--text); margin-bottom:4px; }
   .redun p  { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
-  .redun-copies {
-    display:flex; gap:4px; margin-top:8px;
-  }
-  .copy-dot {
-    width:10px; height:10px; border-radius:50%;
-    background:var(--accent); opacity:.4;
-  }
+  .redun-copies { display:flex; gap:4px; margin-top:8px; }
+  .copy-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); opacity:.4; }
   .copy-dot.active { opacity:1; }
   .copy-dot.remote { background: #E45D00; }
+
+  /* DISK ROLES */
+  .role-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0; }
+  .role-card {
+    border-radius:10px; padding:16px;
+    border:1px solid var(--border);
+    background:var(--surface-2);
+    text-align:center;
+  }
+  .role-icon { font-size:1.8rem; display:block; margin-bottom:6px; }
+  .role-card h5 { font-family:'Outfit',sans-serif; font-weight:700; font-size:.85rem; color:var(--text); margin-bottom:4px; }
+  .role-card p { font-size:12px; color:var(--text-muted); margin:0; line-height:1.4; }
 
   /* SUMMARY */
   .summary {
@@ -290,7 +371,7 @@
   .summary ul { padding-left:18px; }
   .summary li { font-size:13.5px; }
 
-  /* DOC REFERENCE LINKS */
+  /* DOC LINKS */
   .doc-link {
     display:inline-flex; align-items:center; gap:8px;
     background:var(--accent-light); border:1.5px solid var(--border);
@@ -300,15 +381,7 @@
   }
   .doc-link:hover { background:var(--border); border-color:var(--accent); color:var(--accent); }
   .doc-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
-
-  /* DOCS TABLE IN S11 */
-  .docs-table td a {
-    color:var(--accent);
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    word-break:break-all;
-  }
-  .docs-table td a:hover { color:var(--accent-dark); }
+  .docs-table td a { color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:12px; word-break:break-all; }
 
   /* FOOTER */
   .foot {
@@ -322,11 +395,14 @@
     .sec { padding:22px 18px; }
     .header { padding:28px 20px; }
     .header h1 { font-size:1.5rem; }
-    .stype-grid, .redun-grid { grid-template-columns:1fr 1fr; }
+    .stype-grid, .redun-grid, .disk-grid { grid-template-columns:1fr 1fr; }
+    .cat-banner { grid-template-columns:1fr; }
+    .role-grid { grid-template-columns:1fr; }
     .doc-links { flex-direction:column; }
   }
 </style>
-
+</head>
+<body>
 <div class="wrap">
 
   <header class="header">
@@ -335,71 +411,94 @@
     <div class="pills">
       <span class="pill"><b>Module 4</b> of 12</span>
       <span class="pill"><b>Previous:</b> Virtual Machines</span>
-      <span class="pill"><b>Next:</b> Virtual Networks (VNet)</span>
-      <span class="pill"><b>Beginner Friendly</b></span>
+      <span class="pill"><b>Next:</b> Virtual Networks</span>
+      <span class="pill"><b>3 Storage Types Covered</b></span>
     </div>
   </header>
 
-  <div class="toc">
-    <div class="toc-head">Topics Covered</div>
-    <div class="toc-grid">
-      <a href="#s1"><span class="toc-num">01</span> What is Azure Storage?</a>
-      <a href="#s2"><span class="toc-num">02</span> Storage Account</a>
-      <a href="#s3"><span class="toc-num">03</span> Blob Storage</a>
-      <a href="#s4"><span class="toc-num">04</span> Azure File Storage</a>
-      <a href="#s5"><span class="toc-num">05</span> Azure Tables</a>
-      <a href="#s6"><span class="toc-num">06</span> Queue Storage</a>
-      <a href="#s7"><span class="toc-num">07</span> Redundancy Types</a>
-      <a href="#s8"><span class="toc-num">08</span> When to Use What?</a>
-      <a href="#s9"><span class="toc-num">09</span> AWS Comparison</a>
-      <a href="#s10"><span class="toc-num">10</span> Summary</a>
-      <a href="#s11"><span class="toc-num">11</span> Official Docs</a>
+  <!-- 3 STORAGE CATEGORY OVERVIEW -->
+  <div class="cat-banner">
+    <div class="cat-card obj">
+      <span class="cat-icon">🗂️</span>
+      <h4>Object Storage</h4>
+      <p>Files, images, videos — accessed via URL</p>
+      <div class="aws">AWS: Amazon S3</div>
+    </div>
+    <div class="cat-card file">
+      <span class="cat-icon">📁</span>
+      <h4>File Storage</h4>
+      <p>Shared network drives — SMB/NFS protocol</p>
+      <div class="aws">AWS: Amazon EFS</div>
+    </div>
+    <div class="cat-card blk">
+      <span class="cat-icon">💾</span>
+      <h4>Block Storage</h4>
+      <p>VM hard drives — attached directly to VMs</p>
+      <div class="aws">AWS: Amazon EBS</div>
     </div>
   </div>
 
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-head">Topics Covered in This Module</div>
+    <div class="toc-grid">
+      <a href="#s1"><span class="toc-num">01</span> What is Azure Storage?</a>
+      <a href="#s2"><span class="toc-num">02</span> Storage Account</a>
+      <a href="#s3"><span class="toc-num">03</span> Blob Storage (Object)</a>
+      <a href="#s4"><span class="toc-num">04</span> Azure Managed Disks (Block) <span class="toc-new">NEW</span></a>
+      <a href="#s5"><span class="toc-num">05</span> Azure Files (File Share) <span class="toc-new">NEW</span></a>
+      <a href="#s6"><span class="toc-num">06</span> Azure Tables (NoSQL)</a>
+      <a href="#s7"><span class="toc-num">07</span> Queue Storage</a>
+      <a href="#s8"><span class="toc-num">08</span> Storage Redundancy</a>
+      <a href="#s9"><span class="toc-num">09</span> When to Use Which?</a>
+      <a href="#s10"><span class="toc-num">10</span> Azure vs AWS Comparison</a>
+      <a href="#s11"><span class="toc-num">11</span> Summary</a>
+      <a href="#s12"><span class="toc-num">12</span> Official Docs</a>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
   <!-- S1: WHAT IS AZURE STORAGE -->
+  <!-- ═══════════════════════════════════════════════════ -->
   <section class="sec" id="s1">
     <div class="sec-eye">01 · Introduction</div>
     <h2>What is Azure Storage?</h2>
 
-    <p><strong>Azure Storage</strong> is Microsoft Azure's cloud storage solution. It is a service that lets you store data in the cloud — files, images, videos, database tables, messages — and access them from anywhere in the world over the internet.</p>
+    <p><strong>Azure Storage</strong> is Microsoft Azure's cloud storage solution. It lets you store data in the cloud and access it from anywhere in the world. Azure Storage is not one service — it is a <em>family of services</em> covering all three types of storage needs.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Think of Azure Storage as a <strong>big secure warehouse</strong> owned by Microsoft. You can store anything in this warehouse — files, photos, messages — and access them from your laptop, phone, or any application, from anywhere in the world, anytime.
+      Think of Azure Storage as a <strong>big multi-storey warehouse</strong> owned by Microsoft. Floor 1 = file lockers (Blob). Floor 2 = shared office cabinets (Azure Files). Floor 3 = personal hard drives for computers (Managed Disks). You can use whichever floor you need.
     </div>
 
-    <h3>Why Do We Need Cloud Storage?</h3>
+    <h3>Azure's 3 Storage Categories (Seen in Portal)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Category</th><th>Azure Service</th><th>When to Use</th><th>AWS Equivalent</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Object Storage</strong></td><td>Blob Storage</td><td>Files, images, videos, backups accessed via URL</td><td>Amazon S3</td></tr>
+          <tr><td><strong>Block Storage</strong></td><td>Azure Managed Disks</td><td>VM's hard drive — OS disk and data disks</td><td>Amazon EBS</td></tr>
+          <tr><td><strong>File Storage</strong></td><td>Azure Files</td><td>Shared network drive mounted by multiple VMs</td><td>Amazon EFS</td></tr>
+          <tr><td><strong>NoSQL Store</strong></td><td>Azure Tables</td><td>Simple key-value data — user preferences, IoT data</td><td>Amazon DynamoDB</td></tr>
+          <tr><td><strong>Message Queue</strong></td><td>Queue Storage</td><td>Messages between application components (async)</td><td>Amazon SQS</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why Cloud Storage Over Physical Hard Drive?</h3>
     <ul>
-      <li>Your laptop hard disk can crash — cloud storage survives hardware failure</li>
-      <li>You can access data from anywhere — not just from one computer</li>
-      <li>Multiple people and applications can use the same data at the same time</li>
-      <li>Azure automatically keeps multiple copies of your data (redundancy)</li>
-      <li>You only pay for what you use — no need to buy physical hard drives</li>
+      <li>Physical hard drives crash — cloud storage survives hardware failure automatically</li>
+      <li>Access from anywhere — not limited to one machine</li>
+      <li>Multiple apps and VMs can access the same data simultaneously</li>
+      <li>Azure keeps multiple copies automatically (redundancy)</li>
+      <li>Pay only for what you use — no upfront hardware cost</li>
     </ul>
 
-    <h3>Azure Storage has 4 Types</h3>
-    <div class="stype-grid">
-      <div class="stype blob">
-        <span class="stype-icon">🗂️</span>
-        <h4>Blob Storage</h4>
-        <p>Store any type of file — images, videos, PDFs, backups. Like Google Drive.</p>
-      </div>
-      <div class="stype files">
-        <span class="stype-icon">📁</span>
-        <h4>Azure Files</h4>
-        <p>Shared network drive that multiple VMs can connect to. Like a company's shared folder.</p>
-      </div>
-      <div class="stype tables">
-        <span class="stype-icon">📊</span>
-        <h4>Azure Tables</h4>
-        <p>Store structured data (like a table/spreadsheet) without a complex database setup.</p>
-      </div>
-      <div class="stype queue">
-        <span class="stype-icon">📬</span>
-        <h4>Queue Storage</h4>
-        <p>Store messages between applications. Like a to-do list that apps process one by one.</p>
-      </div>
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company — Why Cloud Storage Matters</div>
+      <p><strong>Hotstar (Disney+Hotstar)</strong> — India's biggest OTT platform — stores millions of video thumbnails, show posters, episode previews, and subtitle files in Azure Blob Storage. During IPL, they have 50+ million concurrent users. If they stored all this on physical servers, they would need a warehouse full of hard drives. With Azure, they pay per GB and scale instantly.</p>
+      <p><strong>Paytm</strong> — Stores every user's KYC documents (Aadhaar scan, PAN card photo) in Blob Storage with encryption. These documents are accessed rarely (only during verification) so they use the <em>Cool tier</em> to save costs.</p>
     </div>
 
     <div class="doc-links">
@@ -407,49 +506,58 @@
     </div>
   </section>
 
+
+  <!-- ═══════════════════════════════════════════════════ -->
   <!-- S2: STORAGE ACCOUNT -->
+  <!-- ═══════════════════════════════════════════════════ -->
   <section class="sec" id="s2">
     <div class="sec-eye">02 · Foundation</div>
     <h2>Storage Account — The Foundation</h2>
 
-    <p>Before you can use <em>any</em> type of Azure Storage, you must first create a <strong>Storage Account</strong>. A Storage Account is the container that holds all your storage services (Blob, Files, Tables, Queue) together.</p>
+    <p>Before using Blob, Files, Tables, or Queue — you must first create a <strong>Storage Account</strong>. It is the container that holds all Azure Storage services together. Note: <em>Managed Disks do NOT need a Storage Account</em> — they are a separate resource.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      A Storage Account is like a <strong>bank account</strong>. The bank account itself does not hold cash directly — inside it you have a savings account, a current account, a locker, etc. Similarly, the Storage Account contains your Blob Containers, File Shares, Tables, and Queues.
+      A Storage Account is like a <strong>bank account</strong>. The bank account itself doesn't hold cash — inside it you have savings, current account, locker, etc. Similarly, the Storage Account holds your Blob Containers, File Shares, Tables, and Queues.
     </div>
 
-    <h3>Key Properties of a Storage Account</h3>
+    <h3>Key Properties</h3>
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Property</th><th>What It Means</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><strong>Name</strong></td><td>Globally unique name (all lowercase, no spaces, 3–24 chars)</td><td>iimt2026storage</td></tr>
-          <tr><td><strong>Region</strong></td><td>Where your data is physically stored</td><td>Central India</td></tr>
-          <tr><td><strong>Performance</strong></td><td>Standard (HDD, cheaper) or Premium (SSD, faster)</td><td>Standard</td></tr>
+          <tr><td><strong>Name</strong></td><td>Globally unique, all lowercase, 3–24 chars, no spaces or special chars</td><td>iimt2026storage</td></tr>
+          <tr><td><strong>Region</strong></td><td>Physical datacenter where data is stored</td><td>Central India</td></tr>
+          <tr><td><strong>Performance</strong></td><td>Standard (HDD-backed, cheaper) or Premium (SSD-backed, faster)</td><td>Standard</td></tr>
           <tr><td><strong>Redundancy</strong></td><td>How many copies Azure keeps and where</td><td>LRS, GRS, ZRS</td></tr>
-          <tr><td><strong>Access Tier</strong></td><td>Hot (frequent access) or Cool (infrequent access, cheaper)</td><td>Hot</td></tr>
+          <tr><td><strong>Access Tier</strong></td><td>Hot (frequent access) or Cool (infrequent, cheaper)</td><td>Hot</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout info">
-      <div class="callout-head">Storage Account Name Rule</div>
-      The name must be <strong>globally unique</strong> across all of Azure — no two accounts in the world can have the same name. This is because it becomes part of the URL:<br>
-      <code>https://iimt2026storage.blob.core.windows.net</code>
+      <div class="callout-head">Globally Unique Name — Why?</div>
+      The Storage Account name becomes part of the public URL:<br>
+      <code>https://iimt2026storage.blob.core.windows.net</code><br><br>
+      Since URLs are global, no two accounts anywhere in the world can share the same name. This is why names like "storage1" or "test" are always already taken.
     </div>
 
-    <h3>Access Tiers for Blob Storage</h3>
+    <h3>Blob Access Tiers (Cost vs Speed Tradeoff)</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Tier</th><th>Use When</th><th>Storage Cost</th><th>Access Cost</th></tr></thead>
+        <thead><tr><th>Tier</th><th>Use When</th><th>Storage Cost</th><th>Access Cost</th><th>Min Duration</th></tr></thead>
         <tbody>
-          <tr><td><strong>Hot</strong></td><td>Data accessed frequently (daily/weekly)</td><td>Higher</td><td>Lower</td></tr>
-          <tr><td><strong>Cool</strong></td><td>Data accessed rarely (monthly), kept 30+ days</td><td>Lower</td><td>Higher</td></tr>
-          <tr><td><strong>Cold</strong></td><td>Data rarely accessed, kept 90+ days</td><td>Very Low</td><td>High</td></tr>
-          <tr><td><strong>Archive</strong></td><td>Data almost never accessed, kept 180+ days (backups)</td><td>Lowest</td><td>Highest + hours to retrieve</td></tr>
+          <tr><td><strong>Hot</strong></td><td>Data accessed frequently (daily/weekly) — profile pictures, active files</td><td>Higher</td><td>Lower</td><td>—</td></tr>
+          <tr><td><strong>Cool</strong></td><td>Accessed rarely (monthly) — monthly reports, old invoices</td><td>Lower</td><td>Higher</td><td>30 days</td></tr>
+          <tr><td><strong>Cold</strong></td><td>Rarely accessed, kept for compliance — quarterly backups</td><td>Very Low</td><td>High</td><td>90 days</td></tr>
+          <tr><td><strong>Archive</strong></td><td>Almost never accessed — legal documents, 7-year audit records</td><td>Lowest</td><td>Highest + hours to retrieve</td><td>180 days</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company — Storage Tiers in Action</div>
+      <p><strong>HDFC Bank</strong> uses Azure Storage for all transaction records. Recent transactions (last 30 days) → <strong>Hot tier</strong> (customers access frequently for statements). Transactions older than 1 year → <strong>Cool tier</strong> (accessed occasionally for disputes). Transactions older than 7 years → <strong>Archive tier</strong> (only accessed for RBI audits — retrieved with hours of delay, but 90% cheaper storage cost).</p>
     </div>
 
     <div class="doc-links">
@@ -458,67 +566,69 @@
     </div>
   </section>
 
+
+  <!-- ═══════════════════════════════════════════════════ -->
   <!-- S3: BLOB STORAGE -->
+  <!-- ═══════════════════════════════════════════════════ -->
   <section class="sec" id="s3">
-    <div class="sec-eye">03 · Blob Storage</div>
+    <div class="sec-eye">03 · Object Storage</div>
     <h2>Azure Blob Storage</h2>
 
-    <p><strong>BLOB</strong> stands for <strong>Binary Large OBject</strong>. Blob Storage is used to store <em>unstructured data</em> — meaning any type of file that doesn't follow a fixed format.</p>
+    <p><strong>BLOB = Binary Large OBject.</strong> Blob Storage stores <em>unstructured data</em> — any type of file that doesn't follow a fixed format. It is Azure's object storage service and the most commonly used storage type.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Blob Storage is like <strong>Google Drive or Dropbox</strong> — but for your applications and websites. You upload any file (photo, video, PDF, zip, backup) and get a URL to access it. Your website can display images from Blob Storage directly.
+      Blob Storage is like <strong>Google Drive or Dropbox — but for your applications</strong>. You upload any file (photo, video, PDF, zip) and get a URL to access it. Your website can show images directly from Blob Storage via that URL.
     </div>
 
-    <h3>What Can You Store in Blob?</h3>
-    <ul>
-      <li>Images and videos for websites</li>
-      <li>PDF documents and reports</li>
-      <li>Database backups and log files</li>
-      <li>Build artifacts in a DevOps pipeline</li>
-      <li>Machine learning datasets</li>
-      <li>Audio files, ZIP files — literally anything</li>
-    </ul>
-
-    <h3>Blob Storage Structure</h3>
+    <h3>Structure: Account → Container → Blob</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Level</th><th>Name</th><th>Analogy</th></tr></thead>
+        <thead><tr><th>Level</th><th>Name</th><th>Analogy</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td>Top Level</td><td>Storage Account</td><td>The bank account</td></tr>
-          <tr><td>Middle Level</td><td>Container</td><td>A folder inside Drive</td></tr>
-          <tr><td>Bottom Level</td><td>Blob (the actual file)</td><td>A file inside the folder</td></tr>
+          <tr><td>Top</td><td>Storage Account</td><td>The bank</td><td>iimt2026storage</td></tr>
+          <tr><td>Middle</td><td>Container</td><td>A folder inside Drive</td><td>/profile-photos</td></tr>
+          <tr><td>Bottom</td><td>Blob (actual file)</td><td>A file in the folder</td><td>sahil.jpg</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>Types of Blobs</h3>
+    <p>Full URL of a blob: <code>https://iimt2026storage.blob.core.windows.net/profile-photos/sahil.jpg</code></p>
+
+    <h3>3 Types of Blobs</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Blob Type</th><th>Best For</th><th>Example</th></tr></thead>
+        <thead><tr><th>Blob Type</th><th>Best For</th><th>Real Example</th></tr></thead>
         <tbody>
-          <tr><td><strong>Block Blob</strong></td><td>Most files — images, videos, documents</td><td>photo.jpg, report.pdf</td></tr>
-          <tr><td><strong>Append Blob</strong></td><td>Log files (only add, never overwrite)</td><td>app.log, error.log</td></tr>
-          <tr><td><strong>Page Blob</strong></td><td>VM disk files (VHDs), frequent random read/write</td><td>vm-disk.vhd</td></tr>
+          <tr><td><strong>Block Blob</strong></td><td>Most files — images, videos, documents, backups</td><td>photo.jpg, report.pdf, backup.zip</td></tr>
+          <tr><td><strong>Append Blob</strong></td><td>Log files — only append new data, never overwrite</td><td>app.log, access.log, error.log</td></tr>
+          <tr><td><strong>Page Blob</strong></td><td>VM disk files (VHDs) — frequent random read/write</td><td>vm-os-disk.vhd (used internally by Azure)</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3>Container Access Levels</h3>
     <ul>
-      <li><strong>Private (default)</strong> — Only authorized users can access. Need authentication. Best for sensitive data.</li>
-      <li><strong>Blob</strong> — Anyone with the URL can read blobs, but cannot list what's inside the container.</li>
-      <li><strong>Container</strong> — Anyone can list all blobs inside and read them. Use for fully public data.</li>
+      <li><strong>Private (default)</strong> — Need authentication to access. Use for sensitive data (KYC, bank statements).</li>
+      <li><strong>Blob level</strong> — Anyone with the URL can read that specific file, but can't list all files in the container.</li>
+      <li><strong>Container level</strong> — Anyone can list all files and read them. Use for fully public data (website images).</li>
     </ul>
 
     <div class="callout warn">
-      <div class="callout-head">SAS Token — Temporary Access</div>
-      If a container is Private but you want to share one file temporarily, use a <strong>SAS (Shared Access Signature) Token</strong>. It generates a special URL with an expiry time. After the time expires, the URL stops working.<br><br>
-      Example: Share a file that expires in 2 hours for a client download.
+      <div class="callout-head">SAS Token — Temporary Access URL</div>
+      If a container is Private but you want to share one file temporarily → use a <strong>SAS (Shared Access Signature) Token</strong>. It generates a special URL with an expiry time. After expiry, the URL automatically stops working.<br><br>
+      Example: "Download your salary slip" link valid for 24 hours only.
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company Scenarios — Blob Storage</div>
+      <p><strong>Zomato</strong> stores every restaurant's menu photos, banner images, and food images in Azure Blob Storage. When you open Zomato app, images load from Blob Storage via CDN (Content Delivery Network). They have millions of images. With Archive tier for old/inactive restaurant data, they save ~80% on storage costs for images that are no longer shown.</p>
+      <p><strong>Swiggy</strong> uses Append Blobs for application logs. Every order event (placed, accepted, picked up, delivered) gets appended to a log file. These logs are never overwritten — only new lines are added. After 90 days, old logs move to Archive tier.</p>
+      <p><strong>PolicyBazaar</strong> stores all insurance policy documents (PDFs) in Blob Storage with Private access. Each customer gets a SAS Token URL valid for 7 days to download their document after purchase.</p>
     </div>
 
     <h3>AWS Equivalent</h3>
-    <p>Azure Blob Storage = <strong>Amazon S3 (Simple Storage Service)</strong>. Both are object storage services for storing any type of file.</p>
+    <p>Azure Blob Storage = <strong>Amazon S3</strong> — both are object storage services. S3 uses "buckets" instead of "containers" but the concept is identical.</p>
 
     <div class="doc-links">
       <a class="doc-link" href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank">📄 Blob Storage Introduction</a>
@@ -526,217 +636,383 @@
     </div>
   </section>
 
-  <!-- S4: FILE STORAGE -->
-  <section class="sec" id="s4">
-    <div class="sec-eye">04 · Azure File Storage</div>
-    <h2>Azure File Storage</h2>
 
-    <p><strong>Azure File Storage</strong> provides fully managed <em>network file shares</em> in the cloud using the <strong>SMB (Server Message Block)</strong> protocol — the same protocol Windows uses for shared drives on a local network.</p>
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S4: AZURE MANAGED DISKS (BLOCK STORAGE) - NEW -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s4">
+    <div class="sec-eye">04 · Block Storage — NEW TOPIC</div>
+    <h2>Azure Managed Disks — Block Storage</h2>
+
+    <p><strong>Azure Managed Disks</strong> are virtual hard drives (VHDs) that attach directly to Azure Virtual Machines. When you create a VM, it needs a hard drive — that hard drive is a Managed Disk. This is Azure's <strong>block storage</strong> service.</p>
+    <p>They are called <em>"Managed"</em> because Microsoft handles everything behind the scenes — storage account creation, replication, snapshots, encryption. You just create a disk and attach it to a VM.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Azure File Storage is like a <strong>shared office folder on a company network</strong>. Every computer in the office can access the same folder (Z: drive). Azure File Storage does the same thing — but in the cloud. Multiple VMs and computers can connect to the same shared folder simultaneously.
+      Think of a Managed Disk as the <strong>hard drive inside your laptop</strong>. Your laptop (VM) cannot work without a hard drive (Managed Disk). It is directly attached — not accessed over the internet like Blob Storage. It's fast, dedicated, and specific to that one machine.
     </div>
 
-    <h3>Key Features</h3>
-    <ul>
-      <li>Uses <strong>SMB protocol</strong> — works with Windows, Linux, and macOS</li>
-      <li>Multiple VMs can mount the same file share at the same time</li>
-      <li>Works like a normal folder — copy, paste, move files just like on your computer</li>
-      <li>Can replace on-premises file servers (no need to maintain physical servers)</li>
-      <li>Accessible via Azure Portal, Storage Explorer, or command line</li>
-    </ul>
+    <h3>3 Disk Roles on a VM</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-icon">🖥️</span>
+        <h5>OS Disk</h5>
+        <p>Contains Windows/Linux OS. Every VM must have exactly one. Can't be detached while VM runs.</p>
+      </div>
+      <div class="role-card">
+        <span class="role-icon">💽</span>
+        <h5>Data Disk</h5>
+        <p>For your database, app files, or extra storage. One VM can have multiple data disks (up to 32 TB each).</p>
+      </div>
+      <div class="role-card">
+        <span class="role-icon">⚡</span>
+        <h5>Temp Disk</h5>
+        <p>Temporary scratch space. Fast but NOT persistent — data is lost when VM stops or restarts. Never store important data here.</p>
+      </div>
+    </div>
 
-    <h3>Blob Storage vs Azure Files — Key Difference</h3>
+    <div class="callout warn">
+      <div class="callout-head">Critical Warning — Temp Disk</div>
+      The Temp disk (D: on Windows, /dev/sdb on Linux) is <strong>not reliable storage</strong>. It is physically on the host server, not replicated. If your VM is stopped, deallocated, or migrated — ALL data on the temp disk is permanently lost. Only use it for swap files, caches, or calculations.
+    </div>
+
+    <h3>5 Disk Types — Choose Based on Workload</h3>
+    <div class="disk-grid">
+      <div class="disk-card ultra">
+        <span class="disk-tag">ULTRA DISK</span>
+        <h4>Ultra Disk</h4>
+        <div class="spec">Up to 160,000 IOPS · Sub-ms latency</div>
+        <p>Highest performance available. Adjustable IOPS and throughput without detaching.</p>
+        <div class="use">Use: Trading platforms, SAP HANA, high-frequency databases</div>
+      </div>
+      <div class="disk-card pssd2">
+        <span class="disk-tag">PREMIUM SSD v2</span>
+        <h4>Premium SSD v2</h4>
+        <div class="spec">Up to 80,000 IOPS · Sub-ms latency</div>
+        <p>Flexible performance configuration. Better price than Ultra for most production workloads.</p>
+        <div class="use">Use: Production databases, ERP systems, enterprise apps</div>
+      </div>
+      <div class="disk-card pssd">
+        <span class="disk-tag">PREMIUM SSD</span>
+        <h4>Premium SSD</h4>
+        <div class="spec">Up to 20,000 IOPS · Single-ms latency</div>
+        <p>Best price/performance for most production workloads. Most commonly used in enterprises.</p>
+        <div class="use">Use: Production web servers, SQL Server, MySQL, MongoDB</div>
+      </div>
+      <div class="disk-card sssd">
+        <span class="disk-tag">STANDARD SSD</span>
+        <h4>Standard SSD</h4>
+        <div class="spec">Up to 6,000 IOPS · Low single-digit ms</div>
+        <p>Consistent performance for workloads that don't need high IOPS.</p>
+        <div class="use">Use: Dev/test VMs, lightly used web servers, non-critical apps</div>
+      </div>
+      <div class="disk-card shdd">
+        <span class="disk-tag">STANDARD HDD</span>
+        <h4>Standard HDD</h4>
+        <div class="spec">Up to 2,000 IOPS · High latency OK</div>
+        <p>Cheapest option. Uses spinning hard disk. High latency acceptable.</p>
+        <div class="use">Use: Dev/test, backups, non-critical batch processing</div>
+      </div>
+    </div>
+
+    <h3>Key Features of Managed Disks</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th></th><th>Blob Storage</th><th>Azure Files</th></tr></thead>
+        <thead><tr><th>Feature</th><th>What It Does</th></tr></thead>
         <tbody>
-          <tr><td><strong>Protocol</strong></td><td>HTTP/HTTPS (REST API)</td><td>SMB (network drive)</td></tr>
-          <tr><td><strong>Access Style</strong></td><td>Application downloads file via URL</td><td>Mounted as a drive letter (Z:\)</td></tr>
-          <tr><td><strong>Use Case</strong></td><td>Websites, apps, backups</td><td>Shared config files, multi-VM access</td></tr>
-          <tr><td><strong>Simultaneous Users</strong></td><td>Many (read via URL)</td><td>Many (mounted as network drive)</td></tr>
-          <tr><td><strong>AWS Equivalent</strong></td><td>Amazon S3</td><td>Amazon EFS (Elastic File System)</td></tr>
+          <tr><td><strong>Snapshots</strong></td><td>Point-in-time copy of a disk. Create before risky operations. If something breaks, restore from snapshot.</td></tr>
+          <tr><td><strong>Server-Side Encryption (SSE)</strong></td><td>Data on disk is automatically encrypted at rest. On by default — no extra cost or action needed.</td></tr>
+          <tr><td><strong>Disk Resize</strong></td><td>Increase disk size without data loss. Cannot decrease size (only increase allowed).</td></tr>
+          <tr><td><strong>Disk Bursting</strong></td><td>Standard SSD and Premium SSD can burst to higher IOPS temporarily for peak loads.</td></tr>
+          <tr><td><strong>Shared Disks</strong></td><td>Same disk attached to multiple VMs simultaneously (for clustered applications like SQL Server AlwaysOn).</td></tr>
+          <tr><td><strong>ZRS Disks</strong></td><td>Zone-Redundant Managed Disks — replicated across 3 availability zones. No data loss if one zone goes down.</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="callout tip">
-      <div class="callout-head">Real World Use Case</div>
-      A company has 5 web servers running the same application. The app needs a config file. Instead of copying the config file to each server manually, store it once in Azure File Storage and mount the share on all 5 servers. When you update the config file once, all 5 servers see the change immediately.
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company Scenarios — Managed Disks</div>
+      <p><strong>Zerodha</strong> (India's largest stock broker) runs its trading database on Azure VMs with <strong>Ultra Disks</strong>. During market hours (9:15 AM – 3:30 PM), thousands of trades per second are written. Ultra Disk gives sub-millisecond latency — even 5ms delay can mean a trade at a different price. They configure 100,000 IOPS during market hours and reduce at night to save money.</p>
+      <p><strong>Wipro IT</strong> migrated 500+ on-premises servers to Azure VMs. Each VM got a Managed Disk. Dev/test servers got <strong>Standard SSD</strong> (cheap, consistent). Production SAP servers got <strong>Premium SSD</strong>. All disks have automatic encryption — zero compliance effort needed compared to managing physical encryption on-prem.</p>
+      <p><strong>Apollo Hospitals</strong> stores medical imaging data (CT scans, MRI) on Data Disks (Premium SSD) attached to their imaging servers. They take daily <strong>snapshots</strong> before any system updates. If an update breaks something, they restore to yesterday's snapshot in under 10 minutes — critical for hospital operations.</p>
+    </div>
+
+    <h3>Managed Disk vs Unmanaged Disk</h3>
+    <div class="callout info">
+      <div class="callout-head">Why "Managed" Matters</div>
+      Before Managed Disks existed, disks were stored as VHD files inside a Storage Account (called Unmanaged Disks). You had to manually manage storage account limits, performance, and replication. <br><br>
+      <strong>Managed Disks</strong> (2017 onwards) let Microsoft handle all of that automatically. Today, always use Managed Disks — Unmanaged Disks are deprecated and not recommended.
+    </div>
+
+    <h3>Blob Storage vs Managed Disks — What's the Difference?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Blob Storage</th><th>Managed Disks</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Type</strong></td><td>Object Storage</td><td>Block Storage</td></tr>
+          <tr><td><strong>Access</strong></td><td>Via HTTP URL (internet)</td><td>Directly attached to VM (like internal hard drive)</td></tr>
+          <tr><td><strong>Use For</strong></td><td>Files your app reads/writes over the network</td><td>VM's OS, database files, application install</td></tr>
+          <tr><td><strong>Protocol</strong></td><td>REST API / HTTPS</td><td>SCSI / NVMe (block-level)</td></tr>
+          <tr><td><strong>Shared?</strong></td><td>Yes — many apps access simultaneously</td><td>Typically one VM (Shared Disk = special case)</td></tr>
+          <tr><td><strong>AWS Equivalent</strong></td><td>Amazon S3</td><td>Amazon EBS</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-links">
+      <a class="doc-link" href="https://learn.microsoft.com/azure/virtual-machines/managed-disks-overview" target="_blank">📄 Azure Managed Disks Overview</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/virtual-machines/disks-types" target="_blank">📄 Disk Types Comparison</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/virtual-machines/snapshot-copy-managed-disk" target="_blank">📄 Disk Snapshots</a>
+    </div>
+  </section>
+
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S5: AZURE FILES (EXPANDED) -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s5">
+    <div class="sec-eye">05 · File Storage (Expanded)</div>
+    <h2>Azure Files — File Sharing Storage</h2>
+
+    <p><strong>Azure Files</strong> provides fully managed <em>network file shares</em> in the cloud. It replaces on-premises file servers completely. Multiple VMs, computers, and even on-premises servers can connect to the same shared folder simultaneously.</p>
+
+    <div class="analogy">
+      <div class="analogy-head">Simple Analogy</div>
+      In your college computer lab, all computers share a common <strong>Z: drive</strong> — you save a file on one computer and access it on another. Azure Files does exactly this — but in the cloud. Any VM, any computer, anywhere in the world can mount the same folder as a drive letter.
+    </div>
+
+    <h3>2 Protocols Supported</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Protocol</th><th>Used By</th><th>Port</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SMB (Server Message Block)</strong></td><td>Windows, Linux, macOS</td><td>445</td><td>Windows-based file shares, office shared drives, config files for Windows apps</td></tr>
+          <tr><td><strong>NFS (Network File System)</strong></td><td>Linux / Unix only</td><td>2049</td><td>Linux-based applications, POSIX permissions needed, high-performance Linux workloads</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="callout-head">SMB Port 445 Blocked?</div>
+      Many ISPs (including Jio, Airtel) block port 445 for residential connections. If you try to mount Azure Files from your home laptop over the internet, it may fail. Solution: Use <strong>Azure VPN Gateway</strong> or access from an Azure VM (which has direct access).
+    </div>
+
+    <h3>Azure File Share Tiers</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Tier</th><th>Storage Type</th><th>Best For</th><th>Cost</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Premium</strong></td><td>SSD</td><td>Low-latency, high-IOPS file shares — databases, trading apps</td><td>Highest</td></tr>
+          <tr><td><strong>Transaction Optimized</strong></td><td>HDD</td><td>High transaction workloads, general purpose</td><td>Higher</td></tr>
+          <tr><td><strong>Hot</strong></td><td>HDD</td><td>Team collaboration, general use, frequently accessed</td><td>Medium</td></tr>
+          <tr><td><strong>Cool</strong></td><td>HDD</td><td>Online backup, rarely accessed archives</td><td>Lowest</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Azure File Sync — Bridge Between On-Premises and Cloud</h3>
+    <p><strong>Azure File Sync</strong> is a powerful feature that syncs your on-premises Windows Server file folders with Azure Files automatically. It's like OneDrive but for your company's file servers.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>What It Does</th><th>How It Works</th></tr></thead>
+        <tbody>
+          <tr><td>Files sync both ways</td><td>Change a file on your office server → it appears in Azure. Change in Azure → it appears on office server.</td></tr>
+          <tr><td>Cloud Tiering</td><td>Rarely used files are automatically moved to Azure, freeing up local disk space. They appear as "placeholder" files on the server.</td></tr>
+          <tr><td>Multiple offices</td><td>3 offices in Delhi, Mumbai, Bangalore — all share the same Azure File Share. Changes in one office appear in others.</td></tr>
+          <tr><td>Disaster Recovery</td><td>If office server crashes, all data is safe in Azure. New server can sync back from Azure instantly.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Azure Files vs Blob Storage vs Managed Disks</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th></th><th>Blob Storage</th><th>Azure Files</th><th>Managed Disks</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Type</strong></td><td>Object Storage</td><td>File Storage</td><td>Block Storage</td></tr>
+          <tr><td><strong>Protocol</strong></td><td>HTTP REST API</td><td>SMB / NFS</td><td>SCSI / NVMe</td></tr>
+          <tr><td><strong>Mounted as</strong></td><td>URL (not mounted)</td><td>Drive letter (Z:\) or mount point</td><td>Internal disk (C:\ or /dev/sda)</td></tr>
+          <tr><td><strong>Multiple VMs</strong></td><td>Yes (via URLs)</td><td>Yes (mounted simultaneously)</td><td>Usually No (except Shared Disk)</td></tr>
+          <tr><td><strong>Use Case</strong></td><td>Static files for apps/websites</td><td>Shared config, team files, migrated file servers</td><td>VM OS disk, database storage</td></tr>
+          <tr><td><strong>AWS Equivalent</strong></td><td>S3</td><td>EFS</td><td>EBS</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company Scenarios — Azure Files</div>
+      <p><strong>Infosys</strong> has 300,000+ employees across 50 offices in India. Each project team shares configuration files, code templates, and documentation. Instead of email attachments or USB drives, they mount an Azure File Share on every developer's laptop. All 10 developers on a team work on the same config files. When a senior engineer updates a config file from Pune, the developer in Bengaluru sees it immediately — no manual sync needed.</p>
+      <p><strong>A Hospital Chain (example: Fortis)</strong> uses Azure File Sync across 28 hospitals. Medical reports, doctor notes, and billing templates are stored in Azure Files. Each hospital's server syncs locally for fast access. If the Mumbai hospital server crashes, doctors can still access all patient files from Azure directly within minutes.</p>
+      <p><strong>MakeMyTrip</strong> runs 20 web servers behind a load balancer. All 20 servers need the same <code>app.config</code>, SSL certificates, and static HTML templates. Storing these on each server separately means 20 manual updates every time something changes. Solution: mount one Azure File Share on all 20 servers. Update the config once — all 20 servers use it immediately.</p>
     </div>
 
     <div class="doc-links">
       <a class="doc-link" href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank">📄 Azure Files Introduction</a>
-      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/files/storage-files-planning" target="_blank">📄 Planning for Azure Files</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/file-sync/file-sync-introduction" target="_blank">📄 Azure File Sync Overview</a>
+      <a class="doc-link" href="https://learn.microsoft.com/azure/storage/files/storage-files-planning" target="_blank">📄 Planning Azure Files Deployment</a>
     </div>
   </section>
 
-  <!-- S5: AZURE TABLES -->
-  <section class="sec" id="s5">
-    <div class="sec-eye">05 · Azure Tables</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S6: AZURE TABLES -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s6">
+    <div class="sec-eye">06 · NoSQL Storage</div>
     <h2>Azure Table Storage</h2>
 
-    <p><strong>Azure Table Storage</strong> is a <em>NoSQL key-value store</em> for storing structured data. It stores data in rows and columns (like a spreadsheet), but without the complexity of a full SQL database.</p>
+    <p><strong>Azure Table Storage</strong> is a NoSQL key-value store for storing structured data. It stores billions of rows cheaply without needing a full SQL database setup.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Think of Azure Tables as a <strong>giant Excel sheet stored in the cloud</strong>. Each row is an entity (like a student record), and each column is a property (Name, Age, Grade). You can store billions of rows and query them quickly using a key.
+      Azure Tables is like a <strong>giant Excel sheet in the cloud</strong>. Each row is an entity (a student record). Each column is a property (Name, Age, Grade). You can store billions of rows and find any row instantly using a key.
     </div>
 
     <h3>Key Concepts</h3>
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Term</th><th>Meaning</th><th>Analogy</th></tr></thead>
+        <thead><tr><th>Term</th><th>Meaning</th><th>Example</th></tr></thead>
         <tbody>
-          <tr><td><strong>Table</strong></td><td>A collection of entities</td><td>An Excel sheet</td></tr>
-          <tr><td><strong>Entity</strong></td><td>A single record</td><td>A row in the sheet</td></tr>
-          <tr><td><strong>Property</strong></td><td>A field/column in the entity</td><td>A cell value in a row</td></tr>
-          <tr><td><strong>Partition Key</strong></td><td>Groups related entities together for fast queries</td><td>A category/section</td></tr>
-          <tr><td><strong>Row Key</strong></td><td>Unique ID within a partition</td><td>A roll number</td></tr>
+          <tr><td><strong>Table</strong></td><td>A collection of entities</td><td>StudentTable</td></tr>
+          <tr><td><strong>Entity</strong></td><td>A single record (one row)</td><td>Sahil's record</td></tr>
+          <tr><td><strong>Property</strong></td><td>A field/column</td><td>Name, Age, City</td></tr>
+          <tr><td><strong>Partition Key</strong></td><td>Groups related entities for fast queries</td><td>City = "Delhi"</td></tr>
+          <tr><td><strong>Row Key</strong></td><td>Unique ID within a partition</td><td>RollNumber = "2021CS01"</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>When to Use Azure Tables?</h3>
-    <ul>
-      <li>Storing user profiles or preferences</li>
-      <li>Application configuration data</li>
-      <li>Session data for web apps</li>
-      <li>Log data with simple querying needs</li>
-      <li>When you need to store millions of records cheaply without a full SQL database</li>
-    </ul>
-
-    <div class="callout info">
-      <div class="callout-head">Azure Tables vs SQL Database</div>
-      Azure Tables is <strong>NoSQL</strong> — it is faster and cheaper for simple data but cannot do complex JOINs like SQL. Use Azure Tables for simple key-value lookups. Use Azure SQL Database for complex relational data with multiple tables.
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company Scenarios — Azure Tables</div>
+      <p><strong>Ola</strong> stores driver location updates in Azure Tables. Every 5 seconds, 500,000 active drivers send their GPS coordinates. That's 100 million writes per hour. Azure Tables handles this cheaply — much cheaper than SQL Server for this type of high-volume, simple data. Partition Key = city (Delhi, Mumbai), Row Key = driverID. Query "all Delhi drivers" instantly.</p>
+      <p><strong>IoT Smart Meter company</strong> (like Tata Power smart meters) — each meter sends electricity readings every 15 minutes. With 1 million meters, that's 4 million rows per hour. Azure Tables stores all readings. Users query: "show readings for meter 12345 in July 2026" — instant result using PartitionKey=MeterID, RowKey=Timestamp.</p>
     </div>
 
-    <h3>AWS Equivalent</h3>
-    <p>Azure Table Storage ≈ <strong>Amazon DynamoDB</strong> — both are NoSQL key-value stores for semi-structured data.</p>
+    <div class="callout info">
+      <div class="callout-head">Azure Tables vs Azure SQL Database</div>
+      Azure Tables is <strong>NoSQL</strong> — no JOINs, no complex queries, but extremely fast and cheap for simple lookups. Use Tables for high-volume simple data (IoT, logs, user preferences). Use Azure SQL Database when you need complex queries, relationships between tables, and transactions.
+    </div>
 
     <div class="doc-links">
       <a class="doc-link" href="https://learn.microsoft.com/azure/storage/tables/table-storage-overview" target="_blank">📄 Azure Table Storage Overview</a>
     </div>
   </section>
 
-  <!-- S6: QUEUE STORAGE -->
-  <section class="sec" id="s6">
-    <div class="sec-eye">06 · Queue Storage</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S7: QUEUE STORAGE -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s7">
+    <div class="sec-eye">07 · Message Queue</div>
     <h2>Azure Queue Storage</h2>
 
-    <p><strong>Azure Queue Storage</strong> is a message queue service. It stores messages (small pieces of text or data) that one part of your application sends, and another part reads and processes later.</p>
+    <p><strong>Azure Queue Storage</strong> stores messages between application components. One part of the app adds a message to the queue; another part reads and processes it. This creates <em>asynchronous, decoupled</em> communication.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Imagine a <strong>restaurant kitchen order system</strong>. A waiter takes your order and puts a ticket on the kitchen counter (queue). The chef picks up tickets one by one and prepares the food. The waiter doesn't wait at the kitchen — they can go take more orders. This is exactly what Queue Storage does for applications.
+      Imagine a <strong>restaurant kitchen display system</strong>. A waiter takes your order and puts a ticket on the screen. The chef reads tickets one by one. The waiter doesn't stand in the kitchen waiting — they go take more orders. Queue Storage works exactly like this for applications.
     </div>
 
-    <h3>Why Do We Need a Message Queue?</h3>
-    <ul>
-      <li><strong>Decoupling</strong> — Part A of your app doesn't need to wait for Part B to finish. It just adds a message to the queue and moves on.</li>
-      <li><strong>Load balancing</strong> — If too many requests come in, they wait in the queue. Workers process them at their own pace.</li>
-      <li><strong>Reliability</strong> — If a worker crashes, the message stays in the queue and another worker picks it up.</li>
-      <li><strong>Async processing</strong> — Handle background tasks (sending emails, resizing images, generating reports) without blocking the main app.</li>
-    </ul>
-
-    <h3>How Queue Works (Step by Step)</h3>
-    <ol>
-      <li>User uploads a photo on a website</li>
-      <li>Web app adds a message to the queue: "Resize photo X"</li>
-      <li>Web app responds to user immediately: "Upload successful!"</li>
-      <li>A background worker reads the message from the queue</li>
-      <li>Worker resizes the photo and saves it</li>
-      <li>Worker deletes the message from the queue (job done)</li>
-    </ol>
+    <h3>Why Message Queues?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Problem Without Queue</th><th>Solution With Queue</th></tr></thead>
+        <tbody>
+          <tr><td>Web app freezes while processing a large order</td><td>App adds order to queue and responds immediately. Background worker processes it.</td></tr>
+          <tr><td>If email service is down, emails are lost</td><td>Message stays in queue until email service comes back up — no data loss</td></tr>
+          <tr><td>10,000 requests per second crash the backend</td><td>All 10,000 messages wait in queue. Backend processes at its own capacity.</td></tr>
+          <tr><td>Worker crashes mid-processing</td><td>Message becomes visible again in queue after lock expires. Another worker picks it up.</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="callout tip">
-      <div class="callout-head">Key Facts</div>
-      • Maximum message size: <strong>64 KB</strong><br>
-      • Maximum queue size: <strong>500 TB</strong><br>
+      <div class="callout-head">Key Technical Facts</div>
+      • Max message size: <strong>64 KB</strong><br>
+      • Max queue size: <strong>500 TB</strong><br>
       • Message expiry (default): <strong>7 days</strong><br>
-      • A message can be locked (invisible) while a worker processes it — if the worker fails, the lock expires and another worker gets the message
+      • Visibility timeout: Message locked while worker processes. If worker crashes, lock expires (30 sec default) and another worker gets it.
     </div>
 
-    <h3>AWS Equivalent</h3>
-    <p>Azure Queue Storage = <strong>Amazon SQS (Simple Queue Service)</strong> — both are managed message queue services for async communication between application components.</p>
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company Scenarios — Queue Storage</div>
+      <p><strong>Swiggy Order Pipeline</strong> — when you place a food order, the app doesn't process everything at once. The checkout service adds a message to Queue: "OrderID: 98765, Items: [Biryani x2], Restaurant: ABC". The app immediately responds "Order Placed!" to you. Behind the scenes, separate workers read from the queue: Worker 1 notifies the restaurant, Worker 2 processes payment, Worker 3 assigns a delivery partner. Each is independent — if the payment service is slow, the restaurant notification still happens on time.</p>
+      <p><strong>Paytm OTP Pipeline</strong> — when you request OTP, the web service doesn't call the SMS provider directly (that's slow and risky). It adds a message to a queue: "Send OTP 457823 to +91-9876543210". An SMS worker reads from the queue and calls the SMS provider. If the SMS provider API is temporarily down, the message stays in queue and is retried automatically — you get the OTP once the provider is back up.</p>
+    </div>
 
     <div class="doc-links">
       <a class="doc-link" href="https://learn.microsoft.com/azure/storage/queues/storage-queues-introduction" target="_blank">📄 Queue Storage Introduction</a>
     </div>
   </section>
 
-  <!-- S7: REDUNDANCY -->
-  <section class="sec" id="s7">
-    <div class="sec-eye">07 · Redundancy</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S8: REDUNDANCY -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s8">
+    <div class="sec-eye">08 · Redundancy</div>
     <h2>Storage Redundancy Types</h2>
 
-    <p>Azure automatically keeps <strong>multiple copies</strong> of your data to protect against hardware failures. The type of redundancy determines <em>where</em> and <em>how many copies</em> are kept.</p>
+    <p>Azure automatically keeps <strong>multiple copies</strong> of your data to protect against hardware failures. The redundancy type determines <em>where</em> copies are kept and how many.</p>
 
     <div class="analogy">
       <div class="analogy-head">Simple Analogy</div>
-      Redundancy is like making photocopies of important documents. LRS = 3 copies in the same building. GRS = 3 copies in Delhi + 3 copies in Mumbai (in case Delhi floods). More copies = more safety = more cost.
+      Redundancy is like making photocopies of your marksheet. LRS = 3 copies in one building. GRS = 3 copies in Delhi + 3 copies in Mumbai (in case Delhi floods). More copies = more safety = more cost.
     </div>
 
     <div class="redun-grid">
       <div class="redun">
         <span class="redun-tag">LRS</span>
         <h5>Locally Redundant Storage</h5>
-        <p>3 copies within one datacenter in one region. Cheapest option.</p>
+        <p>3 copies within one datacenter in one region. Cheapest option. Survives disk/rack failure but not datacenter failure.</p>
         <div class="redun-copies">
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div><div class="copy-dot active"></div><div class="copy-dot active"></div>
         </div>
       </div>
       <div class="redun">
         <span class="redun-tag">ZRS</span>
         <h5>Zone Redundant Storage</h5>
-        <p>3 copies across 3 different Availability Zones in one region.</p>
+        <p>3 copies across 3 Availability Zones in same region. Survives full zone outage.</p>
         <div class="redun-copies">
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
+          <div class="copy-dot active"></div><div class="copy-dot active"></div><div class="copy-dot active"></div>
         </div>
       </div>
       <div class="redun">
         <span class="redun-tag">GRS</span>
         <h5>Geo-Redundant Storage</h5>
-        <p>3 copies in primary region + 3 copies in a paired secondary region (e.g., India South).</p>
+        <p>3 copies in primary region + 3 copies in paired region (e.g., Central India → South India). Survives region-wide disaster.</p>
         <div class="redun-copies">
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot remote active"></div>
-          <div class="copy-dot remote active"></div>
-          <div class="copy-dot remote active"></div>
+          <div class="copy-dot active"></div><div class="copy-dot active"></div><div class="copy-dot active"></div>
+          <div class="copy-dot remote active"></div><div class="copy-dot remote active"></div><div class="copy-dot remote active"></div>
         </div>
       </div>
       <div class="redun">
         <span class="redun-tag">GZRS</span>
         <h5>Geo-Zone Redundant</h5>
-        <p>3 copies across zones in primary region + 3 copies in paired region. Maximum protection.</p>
+        <p>3 zone copies in primary + 3 in paired region. Maximum protection against both zone and region failures.</p>
         <div class="redun-copies">
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot active"></div>
-          <div class="copy-dot remote active"></div>
-          <div class="copy-dot remote active"></div>
-          <div class="copy-dot remote active"></div>
+          <div class="copy-dot active"></div><div class="copy-dot active"></div><div class="copy-dot active"></div>
+          <div class="copy-dot remote active"></div><div class="copy-dot remote active"></div><div class="copy-dot remote active"></div>
         </div>
       </div>
     </div>
 
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Type</th><th>Copies</th><th>Survives</th><th>Cost</th><th>Exam Tip</th></tr></thead>
+        <thead><tr><th>Type</th><th>Copies</th><th>Survives</th><th>Cost</th><th>When to Use</th></tr></thead>
         <tbody>
-          <tr><td><strong>LRS</strong></td><td>3</td><td>Single disk/rack failure</td><td>Cheapest</td><td>Dev/test workloads</td></tr>
-          <tr><td><strong>ZRS</strong></td><td>3</td><td>Zone outage</td><td>Medium</td><td>High availability in one region</td></tr>
-          <tr><td><strong>GRS</strong></td><td>6</td><td>Region-wide disaster</td><td>Higher</td><td>Business critical data</td></tr>
-          <tr><td><strong>GZRS</strong></td><td>6</td><td>Zone + Region failure</td><td>Highest</td><td>Maximum durability</td></tr>
+          <tr><td><strong>LRS</strong></td><td>3</td><td>Disk/rack failure</td><td>Cheapest</td><td>Dev/test, non-critical data</td></tr>
+          <tr><td><strong>ZRS</strong></td><td>3</td><td>Zone outage</td><td>Medium</td><td>High availability apps in one region</td></tr>
+          <tr><td><strong>GRS</strong></td><td>6</td><td>Regional disaster</td><td>Higher</td><td>Business-critical data, compliance</td></tr>
+          <tr><td><strong>GZRS</strong></td><td>6</td><td>Zone + Region failure</td><td>Highest</td><td>Maximum durability, banking, healthcare</td></tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="scenario">
+      <div class="scenario-head">🏢 Real Company — Choosing Redundancy</div>
+      <p><strong>ICICI Bank</strong> uses different redundancy for different data. Internal test database → <strong>LRS</strong> (cheapest, doesn't matter if it's lost). Core banking transaction logs → <strong>GRS</strong> (copies in Central India + South India — RBI compliance requirement for disaster recovery). Customer-facing loan documents → <strong>GZRS</strong> (maximum protection — losing these would violate regulations).</p>
     </div>
 
     <div class="doc-links">
@@ -744,152 +1020,179 @@
     </div>
   </section>
 
-  <!-- S8: WHEN TO USE -->
-  <section class="sec" id="s8">
-    <div class="sec-eye">08 · Decision Guide</div>
-    <h2>When to Use Which Storage Type?</h2>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S9: WHEN TO USE WHICH -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s9">
+    <div class="sec-eye">09 · Decision Guide</div>
+    <h2>When to Use Which Storage?</h2>
 
     <div class="tbl-wrap">
       <table>
         <thead><tr><th>Scenario</th><th>Use This</th><th>Why</th></tr></thead>
         <tbody>
-          <tr><td>Store profile pictures for a website</td><td>Blob Storage</td><td>Images served via URL</td></tr>
-          <tr><td>Store database backup files</td><td>Blob Storage (Archive tier)</td><td>Large files, rarely accessed</td></tr>
-          <tr><td>Multiple VMs need to share config files</td><td>Azure Files</td><td>SMB share, like a network drive</td></tr>
-          <tr><td>Application logs (append only)</td><td>Blob → Append Blob</td><td>Only appending, never overwriting</td></tr>
-          <tr><td>Store user preferences / session data</td><td>Azure Tables</td><td>Simple key-value, NoSQL, cheap</td></tr>
-          <tr><td>Send tasks between app components</td><td>Queue Storage</td><td>Async, decoupled processing</td></tr>
-          <tr><td>Video streaming / large media files</td><td>Blob Storage + CDN</td><td>Files + fast delivery</td></tr>
-          <tr><td>VM disk (OS or data disk)</td><td>Blob → Page Blob</td><td>VHD files are page blobs</td></tr>
+          <tr><td>Store profile pictures for a website</td><td>Blob Storage (Hot)</td><td>Images served via URL, frequently accessed</td></tr>
+          <tr><td>Store old audit documents for 7 years</td><td>Blob Storage (Archive)</td><td>Rarely accessed, maximum cost saving</td></tr>
+          <tr><td>VM needs an OS (Windows/Linux)</td><td>Managed Disk (OS Disk)</td><td>Block storage attached directly to VM</td></tr>
+          <tr><td>VM running SQL Server database</td><td>Managed Disk (Premium SSD)</td><td>High IOPS needed for database operations</td></tr>
+          <tr><td>Zerodha trading platform database</td><td>Managed Disk (Ultra Disk)</td><td>Sub-millisecond latency required</td></tr>
+          <tr><td>20 web servers share same config file</td><td>Azure Files (SMB)</td><td>Mounted as network drive on all servers simultaneously</td></tr>
+          <tr><td>Linux servers share data using NFS</td><td>Azure Files (NFS)</td><td>Linux uses NFS protocol for file shares</td></tr>
+          <tr><td>Sync office file server with cloud</td><td>Azure Files + File Sync</td><td>Two-way sync with cloud tiering</td></tr>
+          <tr><td>Store IoT sensor readings (millions/day)</td><td>Azure Tables</td><td>Cheap NoSQL, simple key-value lookups</td></tr>
+          <tr><td>Process food orders asynchronously</td><td>Queue Storage</td><td>Decoupled, async, retry-safe messaging</td></tr>
+          <tr><td>Video streaming files + fast global delivery</td><td>Blob Storage + Azure CDN</td><td>Files stored in Blob, CDN delivers from nearest edge</td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <!-- S9: AWS COMPARISON -->
-  <section class="sec" id="s9">
-    <div class="sec-eye">09 · AWS Comparison</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S10: AWS COMPARISON -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s10">
+    <div class="sec-eye">10 · Cloud Comparison</div>
     <h2>Azure Storage vs AWS Equivalents</h2>
 
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Azure Service</th><th>AWS Equivalent</th><th>Purpose</th></tr></thead>
+        <thead><tr><th>Storage Type</th><th>Azure Service</th><th>AWS Equivalent</th><th>Key Difference</th></tr></thead>
         <tbody>
-          <tr><td><strong>Blob Storage</strong></td><td>Amazon S3</td><td>Object / file storage</td></tr>
-          <tr><td><strong>Azure Files</strong></td><td>Amazon EFS</td><td>Managed network file share</td></tr>
-          <tr><td><strong>Azure Tables</strong></td><td>Amazon DynamoDB</td><td>NoSQL key-value store</td></tr>
-          <tr><td><strong>Queue Storage</strong></td><td>Amazon SQS</td><td>Message queue for async tasks</td></tr>
-          <tr><td><strong>Storage Account</strong></td><td>AWS S3 Bucket (partially)</td><td>Container for all storage</td></tr>
+          <tr>
+            <td><strong>Object Storage</strong></td>
+            <td>Blob Storage</td>
+            <td>Amazon S3</td>
+            <td>Azure uses "Containers"; AWS uses "Buckets". Both store files via URL.</td>
+          </tr>
+          <tr>
+            <td><strong>Block Storage</strong></td>
+            <td>Azure Managed Disks</td>
+            <td>Amazon EBS</td>
+            <td>Azure auto-manages storage accounts. AWS EBS needs manual snapshot management.</td>
+          </tr>
+          <tr>
+            <td><strong>File Storage (SMB/NFS)</strong></td>
+            <td>Azure Files</td>
+            <td>Amazon EFS</td>
+            <td>Azure Files supports both SMB (Windows) + NFS (Linux). EFS supports NFS only.</td>
+          </tr>
+          <tr>
+            <td><strong>File Sync (On-Prem)</strong></td>
+            <td>Azure File Sync</td>
+            <td>AWS DataSync</td>
+            <td>Azure File Sync is tightly integrated with Windows Server. DataSync is agent-based.</td>
+          </tr>
+          <tr>
+            <td><strong>NoSQL Key-Value</strong></td>
+            <td>Azure Tables</td>
+            <td>Amazon DynamoDB</td>
+            <td>DynamoDB is more feature-rich. Azure Tables is simpler and cheaper for basic workloads.</td>
+          </tr>
+          <tr>
+            <td><strong>Message Queue</strong></td>
+            <td>Queue Storage</td>
+            <td>Amazon SQS</td>
+            <td>Both are simple queues. Azure also has Service Bus for advanced messaging (= AWS SQS FIFO + SNS combined).</td>
+          </tr>
+          <tr>
+            <td><strong>Data Migration (Physical)</strong></td>
+            <td>Azure Data Box</td>
+            <td>AWS Snowball</td>
+            <td>Both are physical devices. AWS has Snowball (TB) and Snowmobile (PB — a truck).</td>
+          </tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout info">
-      <div class="callout-head">Why Compare with AWS?</div>
-      As a cloud professional, you may work with both Azure and AWS. Knowing equivalents helps you switch between clouds quickly and also impresses interviewers.
+      <div class="callout-head">Why Know Both?</div>
+      Most IT companies in India use both AWS and Azure (multi-cloud strategy). Wipro, Infosys, TCS, HCL all have clients on both clouds. Knowing both makes you more employable and lets you answer interview questions comparing the two.
     </div>
   </section>
 
-  <!-- S10: SUMMARY -->
-  <section class="sec" id="s10">
-    <div class="sec-eye">10 · Summary</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S11: SUMMARY -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s11">
+    <div class="sec-eye">11 · Summary</div>
     <h2>Chapter Summary</h2>
+
+    <div class="summary">
+      <h4>3 Storage Types — The Most Important Concept</h4>
+      <ul>
+        <li><strong>Block Storage (Managed Disks)</strong> = VM's hard drive. Attached directly. Use for OS, databases. AWS EBS equivalent.</li>
+        <li><strong>Object Storage (Blob)</strong> = Files accessed via URL. Use for images, videos, backups. AWS S3 equivalent.</li>
+        <li><strong>File Storage (Azure Files)</strong> = Shared network drive. Mounted by multiple VMs. AWS EFS equivalent.</li>
+      </ul>
+    </div>
 
     <div class="summary">
       <h4>Key Points to Remember</h4>
       <ul>
-        <li>Azure Storage has 4 types: <strong>Blob, Files, Tables, Queue</strong></li>
-        <li>A <strong>Storage Account</strong> must be created first — it holds all storage types</li>
+        <li>Azure Storage has 5 services: <strong>Blob, Managed Disks, Files, Tables, Queue</strong></li>
+        <li><strong>Storage Account</strong> must be created first for Blob/Files/Tables/Queue — NOT required for Managed Disks</li>
         <li>Storage Account name is <strong>globally unique</strong> and becomes part of the URL</li>
-        <li><strong>Blob Storage</strong> = any file (images, videos, backups) — accessed via URL — like S3</li>
-        <li><strong>Azure Files</strong> = shared network drive using SMB — like EFS</li>
-        <li><strong>Azure Tables</strong> = NoSQL key-value store — like DynamoDB</li>
-        <li><strong>Queue Storage</strong> = messages between apps (async) — like SQS</li>
-        <li><strong>Access Tiers</strong>: Hot → Cool → Cold → Archive (cost vs access speed tradeoff)</li>
-        <li><strong>SAS Token</strong> = temporary access URL for private blobs with expiry time</li>
-        <li><strong>Redundancy</strong>: LRS (cheap) → ZRS → GRS → GZRS (most protected)</li>
-        <li><strong>Deny-by-default</strong>: Blob containers are Private by default</li>
+        <li><strong>Managed Disks</strong>: Ultra > Premium SSD v2 > Premium SSD > Standard SSD > Standard HDD (cost vs performance)</li>
+        <li><strong>Disk Roles</strong>: OS Disk (required) + Data Disk (optional) + Temp Disk (DO NOT store data — not persistent!)</li>
+        <li><strong>Azure Files</strong> supports SMB (Windows/Linux) and NFS (Linux only). Can be mounted as a drive letter.</li>
+        <li><strong>Azure File Sync</strong> = sync on-premises Windows Servers with Azure Files (cloud tiering = free up local disk)</li>
+        <li><strong>Blob Access Tiers</strong>: Hot → Cool → Cold → Archive (cheaper storage, slower access)</li>
+        <li><strong>SAS Token</strong> = temporary URL for private blobs with expiry time</li>
+        <li><strong>Redundancy</strong>: LRS (cheapest) → ZRS → GRS → GZRS (maximum protection)</li>
+        <li><strong>Container access</strong>: Private by default. Blob or Container level for public access.</li>
       </ul>
     </div>
 
     <h3>What's Next?</h3>
-    <p>After storage, the next topic is <strong>Module 5: Virtual Networks (VNet)</strong> — where you will learn how to create private networks in Azure, set up subnets, configure DNS, NSGs, and connect your VMs and storage securely.</p>
+    <p>Next: <strong>Module 5 — Azure Virtual Networks (VNet)</strong>. You'll learn how to create private networks in Azure, configure subnets, set up DNS, NSGs, and connect VMs and storage securely.</p>
   </section>
 
-  <!-- S11: OFFICIAL DOCUMENTATION -->
-  <section class="sec" id="s11">
-    <div class="sec-eye">11 · Resources</div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- S12: OFFICIAL DOCS -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <section class="sec" id="s12">
+    <div class="sec-eye">12 · Resources</div>
     <h2>Official Documentation Links</h2>
 
-    <p>All links below go to <strong>Microsoft Learn</strong> — the official free learning platform by Microsoft. Always use official docs for exam preparation and real-world reference.</p>
+    <p>All links below go to <strong>Microsoft Learn</strong> — Microsoft's official free learning platform. Always use official docs for exam preparation and real-world reference.</p>
 
     <div class="tbl-wrap">
       <table class="docs-table">
         <thead><tr><th>Topic</th><th>Microsoft Learn URL</th></tr></thead>
         <tbody>
-          <tr>
-            <td><strong>Azure Storage — Overview</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-introduction" target="_blank">storage-introduction</a></td>
-          </tr>
-          <tr>
-            <td><strong>Storage Account</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-account-overview" target="_blank">storage-account-overview</a></td>
-          </tr>
-          <tr>
-            <td><strong>Blob Storage Introduction</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank">storage-blobs-introduction</a></td>
-          </tr>
-          <tr>
-            <td><strong>Blob Access Tiers (Hot / Cool / Archive)</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview" target="_blank">access-tiers-overview</a></td>
-          </tr>
-          <tr>
-            <td><strong>SAS Tokens — Shared Access Signature</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank">storage-sas-overview</a></td>
-          </tr>
-          <tr>
-            <td><strong>Azure Files Introduction</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank">storage-files-introduction</a></td>
-          </tr>
-          <tr>
-            <td><strong>Azure Table Storage</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/tables/table-storage-overview" target="_blank">table-storage-overview</a></td>
-          </tr>
-          <tr>
-            <td><strong>Queue Storage Introduction</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/queues/storage-queues-introduction" target="_blank">storage-queues-introduction</a></td>
-          </tr>
-          <tr>
-            <td><strong>Storage Redundancy (LRS / GRS / ZRS)</strong></td>
-            <td><a href="https://learn.microsoft.com/azure/storage/common/storage-redundancy" target="_blank">storage-redundancy</a></td>
-          </tr>
-          <tr>
-            <td><strong>AZ-104 Exam Study Guide</strong></td>
-            <td><a href="https://learn.microsoft.com/certifications/resources/study-guides/az-104" target="_blank">AZ-104 Study Guide</a></td>
-          </tr>
-          <tr>
-            <td><strong>AZ-104 Free Learning Path</strong></td>
-            <td><a href="https://learn.microsoft.com/training/paths/az-104-administrator-prerequisites" target="_blank">az-104-administrator-prerequisites</a></td>
-          </tr>
+          <tr><td><strong>Azure Storage — Overview</strong></td><td><a href="https://learn.microsoft.com/azure/storage/common/storage-introduction" target="_blank">storage-introduction</a></td></tr>
+          <tr><td><strong>Storage Account Overview</strong></td><td><a href="https://learn.microsoft.com/azure/storage/common/storage-account-overview" target="_blank">storage-account-overview</a></td></tr>
+          <tr><td><strong>Blob Storage Introduction</strong></td><td><a href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank">storage-blobs-introduction</a></td></tr>
+          <tr><td><strong>Blob Access Tiers (Hot/Cool/Archive)</strong></td><td><a href="https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview" target="_blank">access-tiers-overview</a></td></tr>
+          <tr><td><strong>SAS Tokens</strong></td><td><a href="https://learn.microsoft.com/azure/storage/common/storage-sas-overview" target="_blank">storage-sas-overview</a></td></tr>
+          <tr><td><strong>Azure Managed Disks Overview</strong></td><td><a href="https://learn.microsoft.com/azure/virtual-machines/managed-disks-overview" target="_blank">managed-disks-overview</a></td></tr>
+          <tr><td><strong>Disk Types (Ultra/Premium/Standard)</strong></td><td><a href="https://learn.microsoft.com/azure/virtual-machines/disks-types" target="_blank">disks-types</a></td></tr>
+          <tr><td><strong>Managed Disk Snapshots</strong></td><td><a href="https://learn.microsoft.com/azure/virtual-machines/snapshot-copy-managed-disk" target="_blank">snapshot-copy-managed-disk</a></td></tr>
+          <tr><td><strong>Azure Files Introduction</strong></td><td><a href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank">storage-files-introduction</a></td></tr>
+          <tr><td><strong>Azure File Sync Overview</strong></td><td><a href="https://learn.microsoft.com/azure/storage/file-sync/file-sync-introduction" target="_blank">file-sync-introduction</a></td></tr>
+          <tr><td><strong>Azure Table Storage</strong></td><td><a href="https://learn.microsoft.com/azure/storage/tables/table-storage-overview" target="_blank">table-storage-overview</a></td></tr>
+          <tr><td><strong>Queue Storage Introduction</strong></td><td><a href="https://learn.microsoft.com/azure/storage/queues/storage-queues-introduction" target="_blank">storage-queues-introduction</a></td></tr>
+          <tr><td><strong>Storage Redundancy (LRS/GRS/ZRS/GZRS)</strong></td><td><a href="https://learn.microsoft.com/azure/storage/common/storage-redundancy" target="_blank">storage-redundancy</a></td></tr>
+          <tr><td><strong>AZ-104 Exam Study Guide</strong></td><td><a href="https://learn.microsoft.com/certifications/resources/study-guides/az-104" target="_blank">AZ-104 Study Guide</a></td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="callout tip">
-      <div class="callout-head">Free Hands-On Labs — No Account Needed</div>
-      Microsoft Learn includes <strong>free browser-based labs</strong> (called "sandboxes") where you can practise Azure without a subscription or credit card. Look for the "Exercise" sections inside each module on learn.microsoft.com. These are perfect for practicing before the actual lab in class.
-    </div>
-
-    <div class="callout info">
-      <div class="callout-head">Azure Portal (For All Labs)</div>
-      All Azure labs in this course are done through the Azure Portal:<br>
-      👉 <a href="https://portal.azure.com" target="_blank" style="color:var(--accent-dark);font-weight:600;">portal.azure.com</a>
+      <div class="callout-head">Pro Tip — How to Study</div>
+      Read the theory → Open Azure Portal → Try creating a Storage Account and upload a blob. Then create an Azure File Share and try mounting it on a VM. Hands-on practice on the free Azure account ($200 credit) is the fastest way to understand these concepts.
     </div>
   </section>
 
   <footer class="foot">
-    <b>IIMT College · Azure Administration (AZ-104) · 3rd Semester</b><br>
-    Module 4 — Azure Storage Theory Notes · Day-09
+    <p>Azure Storage · Module 4 · IIMT University, Meerut · 3rd Semester</p>
+    <p>Trainer: <b>Sahil Kumar</b> · <a href="https://cloudsynq.shop" style="color:var(--accent);">CloudSynq</a></p>
   </footer>
 
 </div>
+</body>
+</html>
